@@ -1,5 +1,5 @@
 import "./App.css";
-import { ClickerApp, ClickerTestApp } from "./Clicker.tsx";
+import { ClickerApp } from "./Clicker.tsx";
 import { useWebApp } from "./TelegramAppProvider.tsx";
 import { useEffect, useRef } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
