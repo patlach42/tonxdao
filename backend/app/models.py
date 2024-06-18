@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -47,6 +49,10 @@ class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     hashed_password: str
     items: list["Item"] = Relationship(back_populates="owner")
+    referrers: list["User"] = Relationship(back_populates="referee")
+
+    referee_id: Optional[int] = Field(default=None, foreign_key="user.id", nullable=True)
+    referee: Optional["User"] = Relationship()
 
 
 # Properties to return via API, id is always required

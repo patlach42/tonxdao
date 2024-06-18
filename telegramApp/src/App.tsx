@@ -68,12 +68,6 @@ const App = observer(() => {
       ],
     },
   ]);
-  const testRouter = createBrowserRouter([
-    {
-      path: "/",
-      element: <ClickerTestApp />,
-    },
-  ]);
   // return <RouterProvider router={testRouter} />;
   return state.profile ? <RouterProvider router={router} /> : null;
   // <RouterProvider router={testRouter} />

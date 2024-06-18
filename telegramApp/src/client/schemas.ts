@@ -69,6 +69,35 @@ export const $HTTPValidationError = {
   },
 } as const;
 
+export const $ReferrerUser = {
+  properties: {
+    name: {
+      type: "string",
+      isRequired: true,
+    },
+    id: {
+      type: "string",
+      isRequired: true,
+    },
+  },
+} as const;
+
+export const $ReferrersResponse = {
+  properties: {
+    list: {
+      type: "array",
+      contains: {
+        type: "ReferrerUser",
+      },
+      isRequired: true,
+    },
+    link: {
+      type: "string",
+      isRequired: true,
+    },
+  },
+} as const;
+
 export const $TelegramInitData = {
   properties: {
     initData: {

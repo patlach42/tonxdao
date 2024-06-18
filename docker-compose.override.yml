@@ -90,27 +90,10 @@ services:
       context: ./telegramApp
       target: build-stage
       args:
-        - VITE_API_URL=http://${DOMAIN?Variable not set}
+        - VITE_API_URL=https://${DOMAIN?Variable not set}
         - NODE_ENV=development
     labels:
-      - traefik.enable=true
-      - traefik.docker.network=traefik-public
-      - traefik.constraint-label=traefik-public
-
       - traefik.http.services.${STACK_NAME?Variable not set}-telegram-app.loadbalancer.server.port=5173
-
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-http.rule=Host(`${DOMAIN?Variable not set}`, `www.${DOMAIN?Variable not set}`)
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-http.entrypoints=http
-
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.rule=Host(`${DOMAIN?Variable not set}`, `www.${DOMAIN?Variable not set}`)
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.entrypoints=https
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.tls=true
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.tls.certresolver=le
-
-      # Enable www redirection for HTTP and HTTPS
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.middlewares=${STACK_NAME?Variable not set}-www-redirect
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-http.middlewares=https-redirect,${STACK_NAME?Variable not set}-www-redirect
-
 networks:
   traefik-public:
     # For local dev, don't expect an external Traefik network

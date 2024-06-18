@@ -121,6 +121,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
       - SENTRY_DSN=${SENTRY_DSN}
+      - APP_TELEGRAM_BOT_TOKEN=${APP_TELEGRAM_BOT_TOKEN?Variable not set}
+      - APP_TELEGRAM_BOT_NAME=${APP_TELEGRAM_BOT_NAME?Variable not set}
     command: "python -m app.tg_bot"
     build:
       context: ./backend
@@ -199,6 +201,9 @@ services:
   telegram-app:
     image: '${DOCKER_IMAGE_WEBAPP?Variable not set}:${TAG-latest}'
     restart: always
+    environment:
+      - VITE_API_URL=https://${DOMAIN?Variable not set}
+      - NODE_ENV=production
     networks:
       - traefik-public
       - default

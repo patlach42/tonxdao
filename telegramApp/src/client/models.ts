@@ -15,6 +15,16 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+export type ReferrerUser = {
+  name: string;
+  id: string;
+};
+
+export type ReferrersResponse = {
+  list: Array<ReferrerUser>;
+  link: string;
+};
+
 export type TelegramInitData = {
   initData: string;
 };

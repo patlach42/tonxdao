@@ -25,7 +25,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=InlineKeyboardMarkup.from_button(
             InlineKeyboardButton(
                 text="Open the TONXDAO!",
-                web_app=WebAppInfo(url="https://app.tonxdao.app/"),
+                web_app=WebAppInfo(url=f"https://{settings.DOMAIN}/"),
             )
         ),
     )

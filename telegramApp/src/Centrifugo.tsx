@@ -6,7 +6,7 @@ import {
   useRef,
 } from "react";
 import { Centrifuge } from "centrifuge";
-import { LoginService } from "./client";
+import { LoginService, OpenAPI } from "./client";
 
 const CentrifugoContext = createContext<Centrifuge | null>(null);
 
@@ -16,12 +16,15 @@ export function useCentrifugo() {
 
 export function CentrifugoProvider({ children }: PropsWithChildren) {
   const centrifugoRef = useRef<Centrifuge>(
-    new Centrifuge("wss://white.tailc4a5e.ts.net/ws", {
+    new Centrifuge(`wss://${OpenAPI.BASE}/ws`, {
       getToken: () => LoginService.loginCentrifugoToken().then((r) => r.token),
     }),
   );
   useEffect(() => {
-    centrifugoRef.current.connect();
+    LoginService.loginCentrifugoToken().then((r) => {
+      centrifugoRef.current.setToken(r.token);
+      centrifugoRef.current.connect();
+    });
   }, []);
   return (
     <CentrifugoContext.Provider value={centrifugoRef.current}>

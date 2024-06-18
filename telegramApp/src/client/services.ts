@@ -8,6 +8,7 @@ import type {
   TelegramInitData,
   Token,
   UserPublic,
+  ReferrersResponse,
 } from "./models";
 
 export type LoginData = {
@@ -19,7 +20,13 @@ export type LoginData = {
   };
 };
 
-export type CenrifugoData = {};
+export type CenrifugoData = {
+  CenrifugoRpc: {
+    requestBody: Record<string, unknown>;
+  };
+};
+
+export type ReferrersData = {};
 
 export class LoginService {
   /**
@@ -107,10 +114,32 @@ export class CenrifugoService {
    * @returns unknown Successful Response
    * @throws ApiError
    */
-  public static cenrifugoRpc(): CancelablePromise<Record<string, unknown>> {
+  public static cenrifugoRpc(
+    data: CenrifugoData["CenrifugoRpc"],
+  ): CancelablePromise<Record<string, unknown>> {
+    const { requestBody } = data;
     return __request(OpenAPI, {
       method: "POST",
       url: "/api/v1/rpc",
+      body: requestBody,
+      mediaType: "application/json",
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+}
+
+export class ReferrersService {
+  /**
+   * Referrers
+   * @returns ReferrersResponse Successful Response
+   * @throws ApiError
+   */
+  public static referrersReferrers(): CancelablePromise<ReferrersResponse> {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/referrers",
     });
   }
 }
