@@ -19,13 +19,13 @@ logger = logging.getLogger(__name__)
 
 # Define a `/start` command handler.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message with a button that opens a the web app."""
+    """Send a message with a button that opens the web app."""
     await update.message.reply_text(
         "Please press the button below to open WebApp.",
         reply_markup=InlineKeyboardMarkup.from_button(
             InlineKeyboardButton(
-                text="Open the TNO!",
-                web_app=WebAppInfo(url="https://white.tailc4a5e.ts.net/"),
+                text="Open the TONXDAO!",
+                web_app=WebAppInfo(url="https://app.tonxdao.app/"),
             )
         ),
     )
