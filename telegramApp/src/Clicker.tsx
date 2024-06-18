@@ -25,6 +25,7 @@ import { observer } from "mobx-react-lite";
 import { Effects } from "./Effects";
 import { state } from "./state.tsx";
 import { makeAutoObservable } from "mobx";
+import { useWebApp } from "./TelegramAppProvider.tsx";
 
 const colors = ["green", "purple", "red", "white"];
 
@@ -218,28 +219,26 @@ const ClickerScreen: React.FC<
   const lastCountedFrame = useRef(performance.now());
   const lastEnergyRestoredFrame = useRef(performance.now());
   const lastVibrateFrame = useRef(performance.now());
+  const app = useWebApp();
 
   useFrameCallback((frameTime) => {
     if (touchingRef.current && !touchRef.current) {
-      navigator.vibrate(0);
       console.log("touchingRef.current && !touchRef.current");
       touchingRef.current = false;
-      setTouchedFrameTimeEnd(performance.now());
     } else if (!touchingRef.current && touchRef.current) {
       console.log("!touchingRef.current && touchRef.current");
       touchingRef.current = true;
-      setTouchedFrameTimeStart(performance.now());
     } else if (touchingRef.current && touchRef.current) {
       // pressing now
       if (frameTime - lastCountedFrame.current >= 50) {
         lastCountedFrame.current = frameTime;
         particlesCountRef.current += 1;
         game.minusEnergy();
+        app?.HapticFeedback?.impactOccurred("light");
         state.particlesCount = particlesCountRef.current;
         centrifugo?.rpc("tap", {});
       }
       if (frameTime - lastVibrateFrame.current >= 40) {
-        navigator.vibrate(2);
         lastVibrateFrame.current = frameTime;
       }
     } else {
@@ -263,14 +262,6 @@ const ClickerScreen: React.FC<
           touchRef.current = true;
         }}
         onTouchEnd={() => {
-          touchRef.current = false;
-        }}
-        onMouseDown={() => {
-          console.log("onMouseDown");
-          touchRef.current = true;
-        }}
-        onMouseUp={() => {
-          console.log("onMouseUp");
           touchRef.current = false;
         }}
       >

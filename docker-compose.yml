@@ -90,8 +90,8 @@ services:
 #      - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.replacement=http$${1}://${DOMAIN?Variable not set}/$${3}
 
       # Enable www redirection for HTTP and HTTPS
-      - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.middlewares=https-redirect,${STACK_NAME?Variable not set}-www-redirect
-      - traefik.http.routers.${STACK_NAME?Variable not set}-backend-https.middlewares=${STACK_NAME?Variable not set}-www-redirect
+#      - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.middlewares=https-redirect,${STACK_NAME?Variable not set}-www-redirect
+#      - traefik.http.routers.${STACK_NAME?Variable not set}-backend-https.middlewares=${STACK_NAME?Variable not set}-www-redirect
 
   telegram-bot:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
@@ -158,8 +158,8 @@ services:
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-admin-https.tls.certresolver=le
 
       # Enable www redirection for HTTP and HTTPS
-      - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-https.middlewares=${STACK_NAME?Variable not set}-www-redirect
-      - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-http.middlewares=https-redirect,${STACK_NAME?Variable not set}-www-redirect
+#      - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-https.middlewares=${STACK_NAME?Variable not set}-www-redirect
+#      - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-http.middlewares=https-redirect,${STACK_NAME?Variable not set}-www-redirect
 
   centrifugo:
     image: centrifugo/centrifugo:v5
@@ -223,8 +223,8 @@ services:
       - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.tls.certresolver=le
 
       # Enable www redirection for HTTP and HTTPS
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.middlewares=${STACK_NAME?Variable not set}-www-redirect
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-http.middlewares=https-redirect,${STACK_NAME?Variable not set}-www-redirect
+#      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.middlewares=${STACK_NAME?Variable not set}-www-redirect
+#      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-http.middlewares=https-redirect,${STACK_NAME?Variable not set}-www-redirect
 
 volumes:
   app-db-data:
