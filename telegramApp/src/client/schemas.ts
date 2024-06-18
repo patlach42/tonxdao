@@ -75,6 +75,10 @@ export const $ReferrerUser = {
       type: "string",
       isRequired: true,
     },
+    coins: {
+      type: "number",
+      isRequired: true,
+    },
     id: {
       type: "string",
       isRequired: true,

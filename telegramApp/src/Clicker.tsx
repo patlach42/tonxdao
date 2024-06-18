@@ -144,7 +144,7 @@ class Game {
     this.energy = this.maxEnergy;
   }
   get maxEnergy() {
-    return 3000;
+    return 500;
   }
   minusEnergy() {
     this.energy = Math.max(0, this.energy - 1);
@@ -160,11 +160,11 @@ class Game {
 const game = new Game();
 
 const useFrameTime = () => {
-  const frameTime = useRef(performance.now());
+  const [frameTime, setFrameTime] = useState(performance.now());
   useEffect(() => {
     let frameId: number;
     const frame = (time: number) => {
-      frameTime.current = time;
+      setFrameTime(time);
       frameId = requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
@@ -174,23 +174,13 @@ const useFrameTime = () => {
 };
 
 const useFrameCallback = (callback: (time: number) => void) => {
+  const frameTime = useFrameTime();
   useEffect(() => {
-    let frameId: number;
-    const frame = () => {
-      callback(performance.now());
-      frameId = requestAnimationFrame(frame);
-    };
-    requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(frameId);
-  }, []);
+    callback(frameTime);
+  }, [frameTime, callback]);
 };
 
-const ClickerScreen: React.FC<
-  PropsWithChildren<{
-    particlesCount: number;
-    onTouch?: () => void;
-  }>
-> = observer((props) => {
+const ClickerScreen: React.FC<PropsWithChildren> = observer((props) => {
   const centrifugo = useCentrifugo();
 
   // { particlesCount, onTouch = () => {} }
@@ -202,13 +192,6 @@ const ClickerScreen: React.FC<
 
   const touchRef = useRef(false);
   const touchingRef = useRef(false);
-
-  const [touchedFrameTimeStart, setTouchedFrameTimeStart] = useState(
-    performance.now(),
-  );
-  const [touchedFrameTimeEnd, setTouchedFrameTimeEnd] = useState(
-    performance.now(),
-  );
 
   useEffect(() => {
     game.start();
@@ -232,17 +215,19 @@ const ClickerScreen: React.FC<
       // pressing now
       if (frameTime - lastCountedFrame.current >= 50) {
         lastCountedFrame.current = frameTime;
-        particlesCountRef.current += 1;
-        game.minusEnergy();
-        app?.HapticFeedback?.impactOccurred("light");
-        state.particlesCount = particlesCountRef.current;
-        centrifugo?.rpc("tap", {});
+        if (game.energy > 0) {
+          app?.HapticFeedback?.impactOccurred("light");
+          particlesCountRef.current += 1;
+          state.particlesCount = particlesCountRef.current;
+          centrifugo?.rpc("tap", {});
+          game.minusEnergy();
+        }
       }
       if (frameTime - lastVibrateFrame.current >= 40) {
         lastVibrateFrame.current = frameTime;
       }
     } else {
-      if (frameTime - lastEnergyRestoredFrame.current >= 100) {
+      if (frameTime - lastEnergyRestoredFrame.current >= 1000) {
         lastEnergyRestoredFrame.current = frameTime;
         game.plusEnergy();
       }
@@ -258,11 +243,15 @@ const ClickerScreen: React.FC<
     <>
       <div
         className="absolute left-0 right-0 top-0 bottom-0 z-10 flex flex-col justify-between items-center "
-        onTouchStart={() => {
+        onTouchStartCapture={(e) => {
           touchRef.current = true;
+          e.preventDefault();
+          e.stopPropagation();
         }}
-        onTouchEnd={() => {
+        onTouchEndCapture={(e) => {
           touchRef.current = false;
+          e.preventDefault();
+          e.stopPropagation();
         }}
       >
         <div className="bg-opacity-35 w-20 h-10  text-white mt-4 font-bold text-3xl">
@@ -369,39 +358,12 @@ const ClickerScreen: React.FC<
   );
 });
 
-const ClickerTestApp = () => {
-  const [particlesCount, setParticlesCount] = useState(0);
-  return (
-    <>
-      <div className="flex flex-col h-screen">
-        <main className="flex-1 bg-gray-100 relative">
-          <ClickerScreen
-            particlesCount={particlesCount}
-            onTouch={() => {
-              setParticlesCount(particlesCount + 1);
-            }}
-          ></ClickerScreen>
-        </main>
-      </div>
-    </>
-  );
-};
-
 const ClickerApp = observer(() => {
-  const centrifugo = useCentrifugo();
-  const onTouch = useCallback(() => {
-    centrifugo?.rpc("tap", {});
-    state.addParticle();
-  }, [centrifugo]);
-
   return (
     <>
-      <ClickerScreen
-        particlesCount={state.particlesCount}
-        onTouch={onTouch}
-      ></ClickerScreen>
+      <ClickerScreen></ClickerScreen>
     </>
   );
 });
 
-export { ClickerApp, ClickerScreen, ClickerTestApp };
+export { ClickerApp, ClickerScreen };

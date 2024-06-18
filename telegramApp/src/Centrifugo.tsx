@@ -16,7 +16,7 @@ export function useCentrifugo() {
 
 export function CentrifugoProvider({ children }: PropsWithChildren) {
   const centrifugoRef = useRef<Centrifuge>(
-    new Centrifuge(`wss://${OpenAPI.BASE}/ws`, {
+    new Centrifuge(`wss://${OpenAPI.BASE.split("://")[1]}/ws`, {
       getToken: () => LoginService.loginCentrifugoToken().then((r) => r.token),
     }),
   );

@@ -39,6 +39,7 @@ export function Referrals() {
           {referrerList.map((i) => (
             <tr>
               <td className="p-2 w-60">{i.name}</td>
+              <td className="p-2 w-20">{i.coins}</td>
             </tr>
           ))}
         </tbody>

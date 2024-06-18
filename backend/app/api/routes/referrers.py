@@ -12,6 +12,7 @@ router = APIRouter()
 
 class ReferrerUser(pydantic.BaseModel):
     name: str
+    coins: int
     id: str
 
 
@@ -24,6 +25,6 @@ class ReferrersResponse(pydantic.BaseModel):
 def referrers(current_user: CurrentUser, session: SessionDep) -> ReferrersResponse:
     return ReferrersResponse(
         # list=[{"id": '1', "name": "Referrer 1"}, {"id": '2', "name": "Referrer 2"}],
-        list=[ReferrerUser(name=user.full_name, id=str(user.telegram_id)) for user in current_user.referrers],
+        list=[ReferrerUser(name=user.full_name, id=str(user.telegram_id), coins=user.coins) for user in current_user.referrers],
         link=f"https://t.me/{settings.APP_TELEGRAM_BOT_NAME}?start={current_user.telegram_id}",
     )

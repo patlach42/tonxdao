@@ -17,6 +17,7 @@ export type HTTPValidationError = {
 
 export type ReferrerUser = {
   name: string;
+  coins: number;
   id: string;
 };
 
