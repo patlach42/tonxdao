@@ -1,0 +1,6 @@
+{
+  "websocket_handler_prefix": "/ws",
+  "namespaces": [{
+      "name": "personal"
+  }]
+}
