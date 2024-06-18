@@ -76,18 +76,18 @@ services:
 
       - traefik.http.services.${STACK_NAME?Variable not set}-backend.loadbalancer.server.port=80
 
-      - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.rule=Host(`${DOMAIN?Variable not set}`, `www.${DOMAIN?Variable not set}`) && PathPrefix(`/api`, `/docs`, `/redoc`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.rule=Host(`${DOMAIN?Variable not set}`) && PathPrefix(`/api`, `/docs`, `/redoc`)
       - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.entrypoints=http
 
-      - traefik.http.routers.${STACK_NAME?Variable not set}-backend-https.rule=Host(`${DOMAIN?Variable not set}`, `www.${DOMAIN?Variable not set}`) && PathPrefix(`/api`, `/docs`, `/redoc`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-backend-https.rule=Host(`${DOMAIN?Variable not set}`) && PathPrefix(`/api`, `/docs`, `/redoc`)
       - traefik.http.routers.${STACK_NAME?Variable not set}-backend-https.entrypoints=https
       - traefik.http.routers.${STACK_NAME?Variable not set}-backend-https.tls=true
       - traefik.http.routers.${STACK_NAME?Variable not set}-backend-https.tls.certresolver=le
-
-      # Define Traefik Middleware to handle domain with and without "www" to redirect to only one
-      - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.regex=^http(s)?://www.(${DOMAIN?Variable not set})/(.*)
-      # Redirect a domain with www to non-www
-      - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.replacement=http$${1}://${DOMAIN?Variable not set}/$${3}
+#
+#      # Define Traefik Middleware to handle domain with and without "www" to redirect to only one
+#      - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.regex=^http(s)?://www.(${DOMAIN?Variable not set})/(.*)
+#      # Redirect a domain with www to non-www
+#      - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.replacement=http$${1}://${DOMAIN?Variable not set}/$${3}
 
       # Enable www redirection for HTTP and HTTPS
       - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.middlewares=https-redirect,${STACK_NAME?Variable not set}-www-redirect
@@ -148,11 +148,11 @@ services:
 
 
       # HTTP rule for the /admin path
-      - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-admin-http.rule=Host(`${DOMAIN?Variable not set}`, `www.${DOMAIN?Variable not set}`) && PathPrefix(`/admin`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-admin-http.rule=Host(`${DOMAIN?Variable not set}`) && PathPrefix(`/admin`)
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-admin-http.entrypoints=http
 
       # HTTPS rule for the /admin path
-      - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-admin-https.rule=Host(`${DOMAIN?Variable not set}`, `www.${DOMAIN?Variable not set}`) && PathPrefix(`/admin`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-admin-https.rule=Host(`${DOMAIN?Variable not set}`) && PathPrefix(`/admin`)
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-admin-https.entrypoints=https
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-admin-https.tls=true
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-admin-https.tls.certresolver=le
@@ -188,10 +188,10 @@ services:
 
       - traefik.http.services.${STACK_NAME?Variable not set}-centrifugo.loadbalancer.server.port=8000
 
-      - traefik.http.routers.${STACK_NAME?Variable not set}-centrifugo-http.rule=Host(`${DOMAIN?Variable not set}`, `www.${DOMAIN?Variable not set}`) && PathPrefix(`/ws`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-centrifugo-http.rule=Host(`${DOMAIN?Variable not set}`) && PathPrefix(`/ws`)
       - traefik.http.routers.${STACK_NAME?Variable not set}-centrifugo-http.entrypoints=http
 
-      - traefik.http.routers.${STACK_NAME?Variable not set}-centrifugo-https.rule=Host(`${DOMAIN?Variable not set}`, `www.${DOMAIN?Variable not set}`) && PathPrefix(`/ws`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-centrifugo-https.rule=Host(`${DOMAIN?Variable not set}`) && PathPrefix(`/ws`)
       - traefik.http.routers.${STACK_NAME?Variable not set}-centrifugo-https.entrypoints=https
       - traefik.http.routers.${STACK_NAME?Variable not set}-centrifugo-https.tls=true
       - traefik.http.routers.${STACK_NAME?Variable not set}-centrifugo-https.tls.certresolver=le
@@ -214,10 +214,10 @@ services:
 
       - traefik.http.services.${STACK_NAME?Variable not set}-telegram-app.loadbalancer.server.port=80
 
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-http.rule=Host(`${DOMAIN?Variable not set}`, `www.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-http.rule=Host(`${DOMAIN?Variable not set}`)
       - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-http.entrypoints=http
 
-      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.rule=Host(`${DOMAIN?Variable not set}`, `www.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.rule=Host(`${DOMAIN?Variable not set}`)
       - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.entrypoints=https
       - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.tls=true
       - traefik.http.routers.${STACK_NAME?Variable not set}-telegram-app-https.tls.certresolver=le

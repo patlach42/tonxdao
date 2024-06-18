@@ -48,11 +48,14 @@ function Sphere({
     delta = Math.min(0.2, delta);
     // Gravity
     api.current?.applyImpulse(
-      vec.copy(api.current.translation()).negate().multiplyScalar(0.04),
+      vec
+        .copy(api.current.translation())
+        .negate()
+        .multiplyScalar(0.4 * scale),
       false,
     );
     api.current?.applyImpulse(
-      vec.copy(api.current.rotation()).multiplyScalar(0.02),
+      vec.copy(api.current.rotation()).multiplyScalar(0.2 * scale),
       false,
     );
     easing.dampC(
@@ -187,15 +190,14 @@ const ClickerScreen: React.FC<
     onTouch?: () => void;
   }>
 > = observer((props) => {
+  const centrifugo = useCentrifugo();
+
   // { particlesCount, onTouch = () => {} }
-  const particlesCountRef = useRef(0);
-  const [particlesCount, setParticlesCount] = useState(0);
+  const particlesCountRef = useRef(state.particlesCount);
+  // const [particlesCount, setParticlesCount] = useState(0);
+  const { particlesCount } = state;
   const totalEnergy = game.maxEnergy;
   const energy = game.energy;
-  const frameCounter = useRef(0);
-  const [lastFrame, setLastFrame] = useState(0);
-  const [fps, setFps] = useState(0);
-  const frameTimeRef = useFrameTime();
 
   const touchRef = useRef(false);
   const touchingRef = useRef(false);
@@ -233,10 +235,11 @@ const ClickerScreen: React.FC<
         lastCountedFrame.current = frameTime;
         particlesCountRef.current += 1;
         game.minusEnergy();
-        setParticlesCount(particlesCountRef.current);
+        state.particlesCount = particlesCountRef.current;
+        centrifugo?.rpc("tap", {});
       }
-      if (frameTime - lastVibrateFrame.current >= 10) {
-        navigator.vibrate(5);
+      if (frameTime - lastVibrateFrame.current >= 40) {
+        navigator.vibrate(2);
         lastVibrateFrame.current = frameTime;
       }
     } else {
