@@ -25,13 +25,6 @@ export function AppLayout() {
         <nav
           className={`flex flex-row justify-around ${colorScheme === "dark" ? "bg-black text-white" : "bg-white text-black"} pb-2 pt-4 pl-2 pr-2`}
         >
-          <NavLink
-            to="/referrals"
-            className="flex flex-col items-center justify-center gap-2"
-          >
-            <BsHeartFill />
-            <span className={"text-sm"}>Ref</span>
-          </NavLink>
           {/*<NavLink*/}
           {/*  to="/tasks"*/}
           {/*  className="flex flex-col items-center justify-center gap-2"*/}
@@ -49,7 +42,14 @@ export function AppLayout() {
             }
           >
             <BsFillLightningChargeFill />
-            <span className={"text-sm"}>Tap</span>
+            <span className={"text-sm"}>Vibe</span>
+          </NavLink>
+          <NavLink
+            to="/referrals"
+            className="flex flex-col items-center justify-center gap-2"
+          >
+            <BsHeartFill />
+            <span className={"text-sm"}>Ref</span>
           </NavLink>
           {/*<NavLink*/}
           {/*  to="/boosts"*/}
