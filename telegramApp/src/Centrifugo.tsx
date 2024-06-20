@@ -21,10 +21,16 @@ export function CentrifugoProvider({ children }: PropsWithChildren) {
     }),
   );
   useEffect(() => {
-    LoginService.loginCentrifugoToken().then((r) => {
-      centrifugoRef.current.setToken(r.token);
-      centrifugoRef.current.connect();
-    });
+    (async () => {
+      try {
+        await LoginService.loginCentrifugoToken().then((r) => {
+          centrifugoRef.current.setToken(r.token);
+          centrifugoRef.current.connect();
+        });
+      } catch (e) {
+        centrifugoRef.current.connect();
+      }
+    })();
   }, []);
   return (
     <CentrifugoContext.Provider value={centrifugoRef.current}>
