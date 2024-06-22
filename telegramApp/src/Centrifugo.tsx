@@ -23,9 +23,16 @@ export function CentrifugoProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     (async () => {
       try {
+        centrifugoRef.current.on("connected", () => {
+          // centrifugoRef.current.rpc("on_connected", {});
+          centrifugoRef.current.newSubscription(`game`);
+        });
         await LoginService.loginCentrifugoToken().then((r) => {
           centrifugoRef.current.setToken(r.token);
           centrifugoRef.current.connect();
+        });
+        centrifugoRef.current.on("message", (data) => {
+          alert(data);
         });
       } catch (e) {
         centrifugoRef.current.connect();

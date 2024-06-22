@@ -63,6 +63,17 @@ services:
     # command: sleep infinity  # Infinite loop to keep container alive doing nothing
     command: /start-reload.sh
 
+  consumer:
+    restart: "no"
+    volumes:
+      - ./backend/:/app
+    build:
+      context: ./backend
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-true}
+    # command: sleep infinity  # Infinite loop to keep container alive doing nothing
+    command: huey_consumer.py tasks.huey
+
   telegram-bot:
     restart: "no"
     volumes:

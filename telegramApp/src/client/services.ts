@@ -8,6 +8,7 @@ import type {
   TelegramInitData,
   Token,
   UserPublic,
+  CentrifugoRpc,
   ReferrersResponse,
 } from "./models";
 
@@ -22,6 +23,9 @@ export type LoginData = {
 
 export type CenrifugoData = {
   CenrifugoRpc: {
+    requestBody: CentrifugoRpc;
+  };
+  CenrifugoPub: {
     requestBody: Record<string, unknown>;
   };
 };
@@ -121,6 +125,26 @@ export class CenrifugoService {
     return __request(OpenAPI, {
       method: "POST",
       url: "/api/v1/rpc",
+      body: requestBody,
+      mediaType: "application/json",
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+
+  /**
+   * Pub
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public static cenrifugoPub(
+    data: CenrifugoData["CenrifugoPub"],
+  ): CancelablePromise<Record<string, unknown>> {
+    const { requestBody } = data;
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/v1/pub",
       body: requestBody,
       mediaType: "application/json",
       errors: {

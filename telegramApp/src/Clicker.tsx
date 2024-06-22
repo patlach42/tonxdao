@@ -1,9 +1,7 @@
 import React, {
   PropsWithChildren,
-  useCallback,
   useEffect,
   useMemo,
-  useReducer,
   useRef,
   useState,
 } from "react";
@@ -109,33 +107,6 @@ const manualInterval = (functionRef: () => void, delay: number) => {
   return () => clearTimeout(timerId);
 };
 
-class Clock {
-  interval?: () => unknown;
-  realTime?: number;
-  callbacks: Array<(realTime?: number) => unknown> = [];
-
-  constructor() {}
-
-  addCallback(callback: (realTime?: number) => unknown) {
-    this.callbacks.push(callback);
-  }
-
-  async getServerTime() {
-    return Date.now();
-  }
-  async start() {
-    this.realTime = await this.getServerTime();
-    this.interval = manualInterval(() => this.tick(), 1000);
-  }
-  stop() {
-    this.interval?.();
-  }
-  tick() {
-    this.realTime = Date.now();
-    this.callbacks.forEach((callback) => callback(this.realTime));
-  }
-}
-
 class Game {
   energy: number;
 
@@ -180,7 +151,7 @@ const useFrameCallback = (callback: (time: number) => void) => {
   }, [frameTime, callback]);
 };
 
-const ClickerScreen: React.FC<PropsWithChildren> = observer((props) => {
+const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   const centrifugo = useCentrifugo();
 
   // { particlesCount, onTouch = () => {} }
@@ -195,6 +166,25 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer((props) => {
 
   useEffect(() => {
     game.start();
+    game.energy = Math.floor(
+      Number(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        state.profile?.energy +
+          (new Date().getTime() -
+            new Date(
+              (state.profile?.last_energy_change || 0) * 1000,
+            ).getTime()) /
+            1000,
+      ),
+    );
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    state.profile.energy = game.energy;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    state.profile.last_energy_change = new Date().getTime() / 1000;
+    // game.energy = state.profile?.last_energy_change || 0;
   }, []);
 
   const energyPercent = (energy / totalEnergy) * 100;
@@ -216,23 +206,55 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer((props) => {
       if (frameTime - lastCountedFrame.current >= 50) {
         lastCountedFrame.current = frameTime;
         if (game.energy > 0) {
-          app?.HapticFeedback?.impactOccurred("light");
           particlesCountRef.current += 1;
           state.particlesCount = particlesCountRef.current;
-          centrifugo?.rpc("tap", {});
+          centrifugo?.publish("game", {});
           game.minusEnergy();
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          state.profile.last_energy_change = new Date().getTime() / 1000;
         }
       }
-      if (frameTime - lastVibrateFrame.current >= 40) {
-        lastVibrateFrame.current = frameTime;
-      }
-    } else {
-      if (frameTime - lastEnergyRestoredFrame.current >= 1000) {
-        lastEnergyRestoredFrame.current = frameTime;
-        game.plusEnergy();
+    }
+    if (frameTime - lastEnergyRestoredFrame.current > 100) {
+      lastEnergyRestoredFrame.current = frameTime;
+      const lastEnergy = game.energy;
+      game.energy = Math.floor(
+        Number(
+          game.energy +
+            (new Date().getTime() -
+              new Date(
+                (state.profile?.last_energy_change || 0) * 1000,
+              ).getTime()) /
+              1000,
+        ),
+      );
+      if (lastEnergy !== game.energy) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        state.profile.energy = game.energy;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        state.profile.last_energy_change =
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          state.profile.last_energy_change + (game.energy - lastEnergy);
       }
     }
   });
+
+  useEffect(() => {
+    const interv = setInterval(() => {
+      if (touchingRef.current && touchRef.current && game.energy > 0) {
+        // app?.HapticFeedback?.impactOccurred("light");
+        app?.HapticFeedback?.notificationOccurred("error");
+        // app?.HapticFeedback?.impactOccurred("heavy");
+        lastVibrateFrame.current = performance.now();
+      }
+      // app?.HapticFeedback?.selectionChanged();
+    }, 1);
+    return () => clearInterval(interv);
+  }, [app?.HapticFeedback]);
 
   const x1ParticlesCount = particlesCount % 100;
   const x3ParticlesCount = ~~(particlesCount / 1000);

@@ -2,6 +2,7 @@ from collections.abc import Generator
 from typing import Annotated
 
 import jwt
+from aioredis import Redis
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
@@ -11,6 +12,7 @@ from sqlmodel import Session
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
+from app.core.redis import redis_client
 from app.models import TokenPayload, User
 
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -24,6 +26,7 @@ def get_db() -> Generator[Session, None, None]:
 
 
 SessionDep = Annotated[Session, Depends(get_db)]
+RedisDep = Annotated[Redis, Depends(lambda: redis_client)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
 
 

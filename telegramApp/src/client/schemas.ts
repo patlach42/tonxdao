@@ -49,6 +49,31 @@ export const $Body_login_login_access_token = {
   },
 } as const;
 
+export const $CentrifugoRpc = {
+  properties: {
+    user: {
+      type: "string",
+      isRequired: true,
+    },
+    method: {
+      type: "CentrifugoRpcMethod",
+      isRequired: true,
+    },
+    data: {
+      type: "dictionary",
+      contains: {
+        properties: {},
+      },
+      isRequired: true,
+    },
+  },
+} as const;
+
+export const $CentrifugoRpcMethod = {
+  type: "Enum",
+  enum: ["on_connected", "tap"],
+} as const;
+
 export const $CentrifugoTokenResponse = {
   properties: {
     token: {
@@ -155,8 +180,17 @@ export const $UserPublic = {
     },
     coins: {
       type: "number",
+      default: 0,
     },
     id: {
+      type: "number",
+      isRequired: true,
+    },
+    energy: {
+      type: "number",
+      isRequired: true,
+    },
+    last_energy_change: {
       type: "number",
       isRequired: true,
     },

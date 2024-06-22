@@ -7,6 +7,14 @@ export type Body_login_login_access_token = {
   client_secret?: string | null;
 };
 
+export type CentrifugoRpc = {
+  user: string;
+  method: CentrifugoRpcMethod;
+  data: Record<string, unknown>;
+};
+
+export type CentrifugoRpcMethod = "on_connected" | "tap";
+
 export type CentrifugoTokenResponse = {
   token: string;
 };
@@ -43,6 +51,8 @@ export type UserPublic = {
   full_name?: string | null;
   coins?: number;
   id: number;
+  energy: number;
+  last_energy_change: number;
 };
 
 export type ValidationError = {

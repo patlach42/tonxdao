@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -11,23 +12,12 @@ class UserBase(SQLModel):
     is_active: bool = True
     is_superuser: bool = False
     full_name: str | None = None
-    coins: int = Field(default=int)
+    coins: int = Field(default=0)
 
 
-# Properties to receive via API on creation
 class UserCreate(UserBase):
     password: str
 
-
-# TODO replace email str with EmailStr when sqlmodel supports it
-class UserRegister(SQLModel):
-    email: str
-    password: str
-    full_name: str | None = None
-
-
-# Properties to receive via API on update, all are optional
-# TODO replace email str with EmailStr when sqlmodel supports it
 class UserUpdate(UserBase):
     email: str | None = None  # type: ignore
     password: str | None = None
@@ -39,12 +29,9 @@ class UserUpdateMe(SQLModel):
     email: str | None = None
 
 
-class UpdatePassword(SQLModel):
-    current_password: str
-    new_password: str
+DEFAULT_ENERGY = 500
 
 
-# Database model, database table inferred from class name
 class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     hashed_password: str
@@ -54,10 +41,16 @@ class User(UserBase, table=True):
     referee_id: Optional[int] = Field(default=None, foreign_key="user.id", nullable=True)
     referee: Optional["User"] = Relationship()
 
+    energy: int | None = Field(default=0)
+    last_energy_change: Optional[datetime.datetime]
+    max_energy: int | None = Field(default=0)
+
 
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
     id: int
+    energy: float
+    last_energy_change: float
 
 
 class UsersPublic(SQLModel):
