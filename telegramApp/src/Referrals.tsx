@@ -17,14 +17,14 @@ export function Referrals() {
     }).toString()}`;
   }, [link]);
   return (
-    <div className="p-4 bg-gray-100">
+    <div className="p-4 text-white">
       <div className="text-sm font-medium">Your referral link:</div>
       <div className="mb-4 flex flex-row">
         <input
           type="text"
           placeholder="Enter your referral link"
           value={link}
-          className="w-full p-2 border border-gray-300 rounded-lg"
+          className="w-full p-2 border border-gray-300 rounded-lg bg-black"
         />
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-lg ml-2"

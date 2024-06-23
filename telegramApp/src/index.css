@@ -2,8 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Sora-Bold';
+  src: url('assets/Sora-Bold.ttf') format('truetype');
+}
+
+
+@font-face {
+  font-family: 'Poppins-Regular';
+  src: url('assets/Poppins-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins-SemiBold';
+  src: url('assets/Poppins-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'AlbertSans-SemiBold';
+  src: url('assets/AlbertSans-SemiBold.ttf') format('truetype');
+}
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Poppins-Regular, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -21,4 +42,29 @@
 body {
   margin: 0;
   padding: 0;
+}
+
+.active-nav-tab {
+  background-color: #2d2d2d;
+  color: white;
+}
+
+.poppins-semi-bold {
+  font-family: Poppins-SemiBold, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.sora-bold {
+  font-family: Sora-Bold, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.albert-sans-semi-bold {
+  font-family: AlbertSans-SemiBold, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.coin-logo {
+  background: url("assets/coin-logo.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 46px;
+  height: 46px;
 }
