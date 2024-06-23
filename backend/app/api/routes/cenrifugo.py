@@ -45,8 +45,8 @@ async def pub(session: SessionDep, redis: RedisDep, data: dict) -> dict:
     calculated_energy = round(time.time() - last_energy_change) // energy_per_second
     total_energy = last_energy + calculated_energy
 
-    # if total_energy == 0:
-    #     return {}
+    if total_energy < -1:
+        return {}
     result_energy = min(total_energy, 500) if total_energy > 0 else 0
     print(result_energy)
 
