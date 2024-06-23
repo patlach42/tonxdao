@@ -94,19 +94,6 @@ function Sphere({
   );
 }
 
-const manualInterval = (functionRef: () => void, delay: number) => {
-  const intervalStart = Date.now();
-  let timerId: string | number | NodeJS.Timeout | undefined;
-  const nextTime = () => {
-    const nextInterval = delay - ((Date.now() - intervalStart) % delay);
-    timerId = setTimeout(nextTime, nextInterval);
-    functionRef();
-  };
-
-  setTimeout(nextTime, delay);
-  return () => clearTimeout(timerId);
-};
-
 class Game {
   energy: number;
 
@@ -153,6 +140,7 @@ const useFrameCallback = (callback: (time: number) => void) => {
 
 const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   const centrifugo = useCentrifugo();
+  const maxEnery = 500;
 
   // { particlesCount, onTouch = () => {} }
   const particlesCountRef = useRef(state.particlesCount);
@@ -166,24 +154,28 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
 
   useEffect(() => {
     game.start();
-    game.energy = Math.floor(
-      Number(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        state.profile?.energy +
-          (new Date().getTime() -
-            new Date(
-              (state.profile?.last_energy_change || 0) * 1000,
-            ).getTime()) /
-            1000,
+    const calculatedEnergy =
+      (new Date().getTime() -
+        new Date((state.profile?.last_energy_change || 0) * 1000).getTime()) /
+      1000;
+    game.energy = Math.min(
+      Math.floor(
+        Number(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          state.profile?.energy + calculatedEnergy,
+        ),
       ),
+      maxEnery,
     );
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     state.profile.energy = game.energy;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    state.profile.last_energy_change = new Date().getTime() / 1000;
+    state.profile.last_energy_change = state?.profile?.last_energy_change
+      ? state.profile.last_energy_change + calculatedEnergy
+      : new Date().getTime() / 1000;
     // game.energy = state.profile?.last_energy_change || 0;
   }, []);
 
@@ -209,14 +201,15 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
           particlesCountRef.current += 1;
           state.particlesCount = particlesCountRef.current;
           centrifugo?.publish("game", {});
-          game.minusEnergy();
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          state.profile.last_energy_change = new Date().getTime() / 1000;
+          game.energy = Math.max(0, game.energy - 1);
+          if (state.profile) {
+            state.profile.last_energy_change = new Date().getTime() / 1000;
+            state.profile.energy = game.energy;
+          }
         }
       }
     }
-    if (frameTime - lastEnergyRestoredFrame.current > 100) {
+    if (frameTime - lastEnergyRestoredFrame.current >= 100) {
       lastEnergyRestoredFrame.current = frameTime;
       const lastEnergy = game.energy;
       let _energy = Math.floor(
@@ -229,7 +222,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
               1000,
         ),
       );
-      _energy = _energy <= 500 ? _energy : 500;
+      _energy = _energy <= maxEnery ? _energy : 500;
       game.energy = _energy;
       if (lastEnergy !== game.energy) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

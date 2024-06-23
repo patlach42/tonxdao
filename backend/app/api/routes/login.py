@@ -13,6 +13,7 @@ from urllib.parse import unquote, parse_qs
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep, RedisDep
+from app.api.routes.cenrifugo import get_user_energy
 from app.core import security
 from app.core.config import settings
 from app.game import GameSession
@@ -134,12 +135,8 @@ async def profile(current_user: CurrentUser, session: SessionDep, redis: RedisDe
     game_session = GameSession(current_user.id)
     await game_session.setup(session, redis)
     u["coins"] = game_session.data.coins
-
-    energy_per_second = 1
     last_energy_change = float(await redis.hget(f"user:{current_user.id}", "last_energy_change"))
     last_energy = float(await redis.hget(f"user:{current_user.id}", "energy"))
-    calculated_energy = (time.time() - last_energy_change) // energy_per_second
-    total_energy = last_energy + calculated_energy
     u["energy"] = last_energy
     u["last_energy_change"] = last_energy_change
     return u

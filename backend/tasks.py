@@ -1,3 +1,5 @@
+import datetime
+
 import redis
 from huey import RedisHuey, crontab
 from sqlalchemy import update
@@ -20,20 +22,25 @@ def every_minute():
     for i in redis_client.scan_iter(b'user:*'):
         all_values = {k.decode(): v.decode() for k, v in redis_client.hgetall(i).items()}
         user_id = int(all_values.get('user_id'))
-        coins = int(all_values.get('coins'))
-        energy = int(all_values.get('energy'))
-        last_energy_change = all_values.get('last_energy_change')
+        coins = int(float(all_values.get('coins')))
+        energy = int(float(all_values.get('energy')))
+        dd = dict(
+            coins=coins,
+            energy=energy,
+        )
+        try:
+            dd["last_energy_change"] = float(all_values.get('last_energy_change'))
+            d = datetime.datetime.fromtimestamp(dd["last_energy_change"])
+            dd["last_energy_change"] = d
+        except ValueError:
+            pass
 
         with Session(engine) as session:
             stmt = update(User).where(
                 User.id == user_id
             ).values(
-                coins=coins,
-                energy=energy,
-                # last_energy_change=last_energy_change
+                **dd,
             )
             session.execute(stmt)
             session.commit()
-
-        print(all_values)
-    print('This task runs every_minute')
+    print('User sync done')
