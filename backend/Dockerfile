@@ -26,3 +26,4 @@ COPY ./prestart.sh /app/
 COPY ./tests-start.sh /app/
 
 COPY ./app /app/app
+COPY ./tasks.py /app/tasks.py
