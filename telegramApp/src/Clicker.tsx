@@ -8,8 +8,8 @@ import React, {
 import { useCentrifugo } from "./Centrifugo.tsx";
 import * as THREE from "three";
 import { Vector3 } from "three";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Lightformer } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { WaveMaterial } from "./Material";
 import {
   BallCollider,
   Physics,
@@ -24,6 +24,8 @@ import { Effects } from "./Effects";
 import { state } from "./state.tsx";
 import { makeAutoObservable } from "mobx";
 import { useWebApp } from "./TelegramAppProvider.tsx";
+import { Environment, Lightformer, Stars } from "@react-three/drei";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
 
 const colors = ["green", "purple", "red", "white"];
 
@@ -68,6 +70,18 @@ function Sphere({
     const a = (n: number) => (n > 0 ? n + 20 : n - 20);
     return position || new Vector3(a(r(100)), a(r(100)), a(r(100)));
   }, [position, r]);
+  const waveRef = useRef();
+
+  useFrame((state, delta) => {
+    waveRef.current.time += delta;
+    easing.damp3(waveRef.current.pointer, state.pointer, 0.2, delta);
+
+    delta = Math.min(0.2, delta);
+    api.current?.applyImpulse(
+      vec.copy(api.current.rotation()).multiplyScalar(2),
+      false,
+    );
+  });
   return (
     <RigidBody
       linearDamping={2}
@@ -84,10 +98,18 @@ function Sphere({
         ref={(_ref) => {
           ref.current = _ref;
         }}
-        castShadow
-        receiveShadow
       >
-        <sphereGeometry args={[scale, 4, 4]} />
+        <sphereGeometry args={[scale, 64, 64]} />
+        <waveMaterial
+          ref={waveRef}
+          key={WaveMaterial.key}
+          resolution={[4000, 4000]}
+        />
+        {/*<waveMaterial*/}
+        {/*  ref={waveRef}*/}
+        {/*  key={WaveMaterial.key}*/}
+        {/*  resolution={[200, 200]}*/}
+        {/*/>*/}
         {children}
       </mesh>
     </RigidBody>
@@ -101,6 +123,7 @@ class Game {
     makeAutoObservable(this);
     this.energy = this.maxEnergy;
   }
+
   get maxEnergy() {
     return 500;
   }
@@ -136,6 +159,88 @@ const useFrameCallback = (callback: (time: number) => void) => {
   useEffect(() => {
     callback(frameTime);
   }, [frameTime, callback]);
+};
+
+const ShaderPlane: React.FC<{
+  position?: Vector3;
+  scale?: number;
+  isVibrating?: boolean;
+  isRef?: boolean;
+}> = ({ position, scale, isVibrating, isRef }) => {
+  const ref = useRef();
+  const api = useRef();
+  const sphere = useRef();
+  useFrame((state, delta) => {
+    const mu = isVibrating ? 2 : 0.02;
+    if (ref.current) {
+      ref.current.time += delta * mu;
+      easing.damp3(ref.current.pointer, state.pointer, 0.2, delta);
+    }
+    if (sphere.current) {
+      // sphere.current.rotateZ += 100;
+    }
+  });
+  return (
+    <RigidBody
+      linearDamping={2}
+      angularDamping={2}
+      friction={0}
+      position={position || [0, 0, 0]}
+      ref={(_ref) => {
+        api.current = _ref;
+      }}
+      colliders={false}
+    >
+      {/*<BallCollider args={[50]} />*/}
+      <mesh>
+        {/*<planeGeometry />*/}
+        <circleGeometry args={[scale ? scale : 50, 64, 64]} ref={sphere} />
+
+        {!isRef ? (
+          <waveMaterial
+            ref={ref}
+            key={WaveMaterial.key}
+            resolution={[500, 500]}
+          />
+        ) : (
+          <meshBasicMaterial color={"black"} toneMapped={false} />
+        )}
+      </mesh>
+    </RigidBody>
+  );
+};
+const Renderer: React.FC<{ isTouching: boolean }> = ({ isTouching }) => {
+  const starsRef = useRef();
+  useFrame((state, delta) => {
+    if (starsRef.current) {
+      const multiplier = isTouching ? 0.06 : 0.01;
+      starsRef.current.rotation.y += delta * multiplier;
+    }
+  });
+  return (
+    <>
+      <color attach="background" args={["#111111"]} />
+      <Physics timeStep="vary" gravity={[0, 0, 0]}>
+        <ShaderPlane
+          isVibrating={isTouching}
+          scale={130}
+          position={new Vector3(0, 30, 0)}
+        ></ShaderPlane>
+        {/*<ShaderPlane position={new Vector3(-100, -150, 0)} isRef></ShaderPlane>*/}
+        {/*<ShaderPlane position={new Vector3(100, -150, 0)} isRef></ShaderPlane>*/}
+      </Physics>
+
+      <Stars saturation={1} count={100} speed={1} ref={starsRef} />
+      <EffectComposer>
+        <Bloom
+          kernelSize={3}
+          luminanceThreshold={0}
+          luminanceSmoothing={0.4}
+          intensity={0.6}
+        />
+      </EffectComposer>
+    </>
+  );
 };
 
 const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
@@ -245,11 +350,8 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
     }, 1);
     return () => clearInterval(interv);
   }, [app?.HapticFeedback]);
-
-  const x1ParticlesCount = particlesCount % 100;
-  const x3ParticlesCount = ~~(particlesCount / 1000);
-  const x2ParticlesCount = ~~((particlesCount - x3ParticlesCount * 1000) / 100);
-  const x4ParticlesCount = ~~(particlesCount / 10000);
+  const isVibrating =
+    touchingRef.current && touchRef.current && game.energy > 0;
 
   return (
     <>
@@ -361,89 +463,13 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
       </div>
       <Canvas
         flat
+        color={"#1B1B1B"}
         shadows
         dpr={[1, 1.5]}
         gl={{ antialias: false }}
-        camera={{ position: [0, 0, 70], fov: 17.5, near: 10, far: 1000 }}
+        camera={{ position: [0, 0, 500], near: 10, far: 1000 }}
       >
-        <color attach="background" args={["#141622"]} />
-        <Physics /*debug*/ timeStep="vary" gravity={[0, 0, 0]}>
-          {/*{connectors.map((props, i) => (*/}
-          {/*  <Sphere key={i} {...props} />*/}
-          {/*))}*/}
-          {Array.from({ length: x4ParticlesCount }, (_, i) => (
-            <Sphere
-              scale={2.2}
-              key={1000 + i}
-              color={colors[i % colors.length]}
-            />
-          ))}
-          {Array.from({ length: x3ParticlesCount }, (_, i) => (
-            <Sphere
-              scale={2}
-              key={100 + i}
-              color={colors[i % colors.length]}
-              position={new Vector3(0, 0, 0)}
-            />
-          ))}
-          {Array.from({ length: x2ParticlesCount }, (_, i) => (
-            <Sphere
-              scale={0.8}
-              position={new Vector3(0, 0, 0)}
-              key={10 + i}
-              color={colors[i % colors.length]}
-            />
-          ))}
-          {Array.from({ length: x1ParticlesCount }, (_, i) => (
-            <Sphere
-              scale={0.2}
-              key={i}
-              color={colors[i % colors.length]}
-              // position={new Vector3(0, 0, 0)}
-            />
-          ))}
-        </Physics>
-        <Environment resolution={256}>
-          <group rotation={[-Math.PI / 3, 0, 1]}>
-            <Lightformer
-              form="circle"
-              intensity={100}
-              rotation-x={Math.PI / 2}
-              position={[0, 5, -9]}
-              scale={2}
-            />
-            <Lightformer
-              form="circle"
-              intensity={2}
-              rotation-y={Math.PI / 2}
-              position={[-5, 1, -1]}
-              scale={2}
-            />
-            <Lightformer
-              form="circle"
-              intensity={2}
-              rotation-y={Math.PI / 2}
-              position={[-5, -1, -1]}
-              scale={2}
-            />
-            <Lightformer
-              form="circle"
-              intensity={2}
-              rotation-y={-Math.PI / 2}
-              position={[10, 1, 0]}
-              scale={8}
-            />
-            <Lightformer
-              form="ring"
-              color="#4060ff"
-              intensity={80}
-              onUpdate={(self) => self.lookAt(0, 0, 0)}
-              position={[10, 10, 0]}
-              scale={10}
-            />
-          </group>
-        </Environment>
-        <Effects />
+        <Renderer isTouching={isVibrating} />
       </Canvas>
     </>
   );

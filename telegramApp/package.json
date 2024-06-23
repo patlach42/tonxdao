@@ -21,6 +21,7 @@
     "@twa-dev/sdk": "^7.0.0",
     "@types/three": "^0.164.1",
     "axios": "^1.7.2",
+    "babel-plugin-glsl": "^1.0.0",
     "centrifuge": "^5.2.0-beta.1",
     "mobx": "^6.12.3",
     "mobx-react-lite": "^4.0.7",
