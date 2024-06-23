@@ -1,120 +1,20 @@
-import React, {
-  PropsWithChildren,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { useCentrifugo } from "./Centrifugo.tsx";
-import * as THREE from "three";
 import { Vector3 } from "three";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { WaveMaterial } from "./Material";
-import {
-  BallCollider,
-  Physics,
-  RapierRigidBody,
-  RigidBody,
-} from "@react-three/rapier";
+import { Physics, RigidBody } from "@react-three/rapier";
 import { easing } from "maath";
 import { observer } from "mobx-react-lite";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { Effects } from "./Effects";
+// @ts-ignore
 import { state } from "./state.tsx";
 import { makeAutoObservable } from "mobx";
 import { useWebApp } from "./TelegramAppProvider.tsx";
-import { Environment, Lightformer, Stars } from "@react-three/drei";
+import { Stars } from "@react-three/drei";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
-
-const colors = ["green", "purple", "red", "white"];
-
-function Sphere({
-  position,
-  children,
-  vec = new Vector3(),
-  scale = 0.1,
-  r = THREE.MathUtils.randFloatSpread,
-  color = "white",
-}: PropsWithChildren<{
-  position?: Vector3;
-  vec?: Vector3;
-  scale?: number;
-  r?: (a: number) => number;
-  color?: string;
-}>) {
-  const api = useRef<RapierRigidBody | null>(null);
-  const ref = useRef<THREE.Mesh | null>(null);
-  useFrame((_frameState, delta) => {
-    delta = Math.min(0.2, delta);
-    // Gravity
-    api.current?.applyImpulse(
-      vec
-        .copy(api.current.translation())
-        .negate()
-        .multiplyScalar(0.4 * scale),
-      false,
-    );
-    api.current?.applyImpulse(
-      vec.copy(api.current.rotation()).multiplyScalar(0.2 * scale),
-      false,
-    );
-    easing.dampC(
-      (ref?.current?.material as unknown as { color: THREE.Color })?.color,
-      color,
-      0,
-      delta,
-    );
-  });
-  const _position = useMemo(() => {
-    const a = (n: number) => (n > 0 ? n + 20 : n - 20);
-    return position || new Vector3(a(r(100)), a(r(100)), a(r(100)));
-  }, [position, r]);
-  const waveRef = useRef();
-
-  useFrame((state, delta) => {
-    waveRef.current.time += delta;
-    easing.damp3(waveRef.current.pointer, state.pointer, 0.2, delta);
-
-    delta = Math.min(0.2, delta);
-    api.current?.applyImpulse(
-      vec.copy(api.current.rotation()).multiplyScalar(2),
-      false,
-    );
-  });
-  return (
-    <RigidBody
-      linearDamping={2}
-      angularDamping={2}
-      friction={0.6}
-      position={_position}
-      ref={(_ref) => {
-        api.current = _ref;
-      }}
-      colliders={false}
-    >
-      <BallCollider args={[scale * 1.1]} />
-      <mesh
-        ref={(_ref) => {
-          ref.current = _ref;
-        }}
-      >
-        <sphereGeometry args={[scale, 64, 64]} />
-        <waveMaterial
-          ref={waveRef}
-          key={WaveMaterial.key}
-          resolution={[4000, 4000]}
-        />
-        {/*<waveMaterial*/}
-        {/*  ref={waveRef}*/}
-        {/*  key={WaveMaterial.key}*/}
-        {/*  resolution={[200, 200]}*/}
-        {/*/>*/}
-        {children}
-      </mesh>
-    </RigidBody>
-  );
-}
 
 class Game {
   energy: number;
@@ -173,7 +73,11 @@ const ShaderPlane: React.FC<{
   useFrame((state, delta) => {
     const mu = isVibrating ? 2 : 0.02;
     if (ref.current) {
+      // eslint-disable-next-line
+      // @ts-ignore
       ref.current.time += delta * mu;
+      // eslint-disable-next-line
+      // @ts-ignore
       easing.damp3(ref.current.pointer, state.pointer, 0.2, delta);
     }
     if (sphere.current) {
@@ -187,6 +91,8 @@ const ShaderPlane: React.FC<{
       friction={0}
       position={position || [0, 0, 0]}
       ref={(_ref) => {
+        // eslint-disable-next-line
+        // @ts-ignore
         api.current = _ref;
       }}
       colliders={false}
@@ -194,9 +100,16 @@ const ShaderPlane: React.FC<{
       {/*<BallCollider args={[50]} />*/}
       <mesh>
         {/*<planeGeometry />*/}
-        <circleGeometry args={[scale ? scale : 50, 64, 64]} ref={sphere} />
+        <circleGeometry
+          args={[scale ? scale : 50, 64, 64]}
+          // eslint-disable-next-line
+          // @ts-ignore
+          ref={sphere}
+        />
 
         {!isRef ? (
+          // eslint-disable-next-line
+          // @ts-ignore
           <waveMaterial
             ref={ref}
             key={WaveMaterial.key}
@@ -214,6 +127,8 @@ const Renderer: React.FC<{ isTouching: boolean }> = ({ isTouching }) => {
   useFrame((state, delta) => {
     if (starsRef.current) {
       const multiplier = isTouching ? 0.06 : 0.01;
+      // eslint-disable-next-line
+      // @ts-ignore
       starsRef.current.rotation.y += delta * multiplier;
     }
   });
@@ -230,7 +145,14 @@ const Renderer: React.FC<{ isTouching: boolean }> = ({ isTouching }) => {
         {/*<ShaderPlane position={new Vector3(100, -150, 0)} isRef></ShaderPlane>*/}
       </Physics>
 
-      <Stars saturation={1} count={100} speed={1} ref={starsRef} />
+      <Stars
+        saturation={1}
+        count={100}
+        speed={1}
+        // eslint-disable-next-line
+        // @ts-ignore
+        ref={starsRef}
+      />
       <EffectComposer>
         <Bloom
           kernelSize={3}
