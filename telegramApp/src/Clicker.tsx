@@ -219,7 +219,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
     if (frameTime - lastEnergyRestoredFrame.current > 100) {
       lastEnergyRestoredFrame.current = frameTime;
       const lastEnergy = game.energy;
-      game.energy = Math.floor(
+      let _energy = Math.floor(
         Number(
           game.energy +
             (new Date().getTime() -
@@ -229,6 +229,8 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
               1000,
         ),
       );
+      _energy = _energy <= 500 ? _energy : 500;
+      game.energy = _energy;
       if (lastEnergy !== game.energy) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
