@@ -55,9 +55,9 @@ class GameSession:
         redis_data = await redis.hgetall(f"user:{self.user_id}")
         redis_data = {k.decode(): v.decode() for k, v in redis_data.items()}
         try:
-            redis_data['last_energy_change'] = datetime.datetime(int(redis_data['last_energy_change']))
+            redis_data['last_energy_change'] = datetime.datetime.fromtimestamp(float(redis_data['last_energy_change']))
         except ValueError:
-            redis_data['last_energy_change'] = 0
+            redis_data['last_energy_change'] = datetime.datetime.now()
         self.data = GameSessionData(**redis_data)
 
     async def is_started(self, redis: RedisDep) -> bool:
