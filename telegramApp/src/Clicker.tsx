@@ -72,8 +72,12 @@ const ShaderPlane: React.FC<{
   const { viewport, size } = useThree();
   useFrame((state, delta) => {
     if (isVibrating) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       ref.current.time += delta * 0.5;
     } else {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       ref.current.time += delta * 0.1;
     }
     // easing.damp3(ref.current.pointer, state.pointer, 0.2, delta);
@@ -81,6 +85,8 @@ const ShaderPlane: React.FC<{
   return (
     <mesh scale={[viewport.width, viewport.height, 1]}>
       <planeGeometry />
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+      {/* @ts-ignore */}
       <waveMaterial
         ref={ref}
         key={WaveMaterial.key}
