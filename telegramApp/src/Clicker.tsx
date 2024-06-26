@@ -1,7 +1,7 @@
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { useCentrifugo } from "./Centrifugo.tsx";
 import { Vector3 } from "three";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { WaveMaterial } from "./Material";
@@ -69,57 +69,24 @@ const ShaderPlane: React.FC<{
 }> = ({ position, scale, isVibrating, isRef }) => {
   const ref = useRef();
   const api = useRef();
-  const sphere = useRef();
+  const { viewport, size } = useThree();
   useFrame((state, delta) => {
-    const mu = isVibrating ? 2 : 0.02;
-    if (ref.current) {
-      // eslint-disable-next-line
-      // @ts-ignore
-      ref.current.time += delta * mu;
-      // eslint-disable-next-line
-      // @ts-ignore
-      easing.damp3(ref.current.pointer, state.pointer, 0.2, delta);
+    if (isVibrating) {
+      ref.current.time += delta * 0.5;
+    } else {
+      ref.current.time += delta * 0.1;
     }
-    if (sphere.current) {
-      // sphere.current.rotateZ += 100;
-    }
+    // easing.damp3(ref.current.pointer, state.pointer, 0.2, delta);
   });
   return (
-    <RigidBody
-      linearDamping={2}
-      angularDamping={2}
-      friction={0}
-      position={position || [0, 0, 0]}
-      ref={(_ref) => {
-        // eslint-disable-next-line
-        // @ts-ignore
-        api.current = _ref;
-      }}
-      colliders={false}
-    >
-      {/*<BallCollider args={[50]} />*/}
-      <mesh>
-        {/*<planeGeometry />*/}
-        <circleGeometry
-          args={[scale ? scale : 50, 64, 64]}
-          // eslint-disable-next-line
-          // @ts-ignore
-          ref={sphere}
-        />
-
-        {!isRef ? (
-          // eslint-disable-next-line
-          // @ts-ignore
-          <waveMaterial
-            ref={ref}
-            key={WaveMaterial.key}
-            resolution={[500, 500]}
-          />
-        ) : (
-          <meshBasicMaterial color={"black"} toneMapped={false} />
-        )}
-      </mesh>
-    </RigidBody>
+    <mesh scale={[viewport.width, viewport.height, 1]}>
+      <planeGeometry />
+      <waveMaterial
+        ref={ref}
+        key={WaveMaterial.key}
+        resolution={[size.width * viewport.dpr, size.height * viewport.dpr]}
+      />
+    </mesh>
   );
 };
 const Renderer: React.FC<{ isTouching: boolean }> = ({ isTouching }) => {
@@ -134,33 +101,27 @@ const Renderer: React.FC<{ isTouching: boolean }> = ({ isTouching }) => {
   });
   return (
     <>
-      <color attach="background" args={["#111111"]} />
-      <Physics timeStep="vary" gravity={[0, 0, 0]}>
-        <ShaderPlane
-          isVibrating={isTouching}
-          scale={130}
-          position={new Vector3(0, 30, 0)}
-        ></ShaderPlane>
-        {/*<ShaderPlane position={new Vector3(-100, -150, 0)} isRef></ShaderPlane>*/}
-        {/*<ShaderPlane position={new Vector3(100, -150, 0)} isRef></ShaderPlane>*/}
-      </Physics>
+      <color attach="background" args={["#ffffff"]} />
+      <ShaderPlane isVibrating={isTouching}></ShaderPlane>
+      {/*<ShaderPlane position={new Vector3(-100, -150, 0)} isRef></ShaderPlane>*/}
+      {/*<ShaderPlane position={new Vector3(100, -150, 0)} isRef></ShaderPlane>*/}
 
-      <Stars
-        saturation={1}
-        count={100}
-        speed={1}
-        // eslint-disable-next-line
-        // @ts-ignore
-        ref={starsRef}
-      />
-      <EffectComposer>
-        <Bloom
-          kernelSize={3}
-          luminanceThreshold={0}
-          luminanceSmoothing={0.4}
-          intensity={0.6}
-        />
-      </EffectComposer>
+      {/*<Stars*/}
+      {/*  saturation={1}*/}
+      {/*  count={100}*/}
+      {/*  speed={1}*/}
+      {/*  // eslint-disable-next-line*/}
+      {/*  // @ts-ignore*/}
+      {/*  ref={starsRef}*/}
+      {/*/>*/}
+      {/*<EffectComposer>*/}
+      {/*  <Bloom*/}
+      {/*    kernelSize={3}*/}
+      {/*    luminanceThreshold={0}*/}
+      {/*    luminanceSmoothing={0.4}*/}
+      {/*    intensity={0.6}*/}
+      {/*  />*/}
+      {/*</EffectComposer>*/}
     </>
   );
 };
@@ -384,12 +345,12 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
         </div>
       </div>
       <Canvas
-        flat
-        color={"#1B1B1B"}
-        shadows
-        dpr={[1, 1.5]}
-        gl={{ antialias: false }}
-        camera={{ position: [0, 0, 500], near: 10, far: 1000 }}
+        // flat
+        color={"#ffffff"}
+        // shadows
+        // dpr={[1, 1.5]}
+        // gl={{ antialias: false }}
+        // camera={{ position: [0, 0, 500], near: 10, far: 1000 }}
       >
         <Renderer isTouching={isVibrating} />
       </Canvas>
