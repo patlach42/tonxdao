@@ -14,7 +14,7 @@ class State {
     10000000,
   ];
   startedAt?: Date;
-  startDelay = 5000;
+  startDelay = 3000;
 
   get currentLevel() {
     for (let i = 0; i < this.levels.length; i++) {
