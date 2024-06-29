@@ -9,6 +9,50 @@ class State {
   maxEnergy = 6000;
   energyPerSecond = 1;
   coinsPerSecond = 20;
+  levels = [
+    1000, 2000, 4000, 8000, 16000, 32000, 64000, 100000, 256000, 1000000,
+    10000000,
+  ];
+  startedAt?: Date;
+  startDelay = 5000;
+
+  get currentLevel() {
+    for (let i = 0; i < this.levels.length; i++) {
+      if (this.particlesCount < this.levels[i]) {
+        return i + 1;
+      }
+    }
+    return this.levels.length;
+  }
+
+  start() {
+    this.startedAt = new Date();
+    // alert((this?.startedAt?.getTime() || 0) - new Date().getTime());
+  }
+
+  stop() {
+    this.startedAt = undefined;
+  }
+
+  get isStarted() {
+    if (!this?.startedAt) {
+      return false;
+    }
+    return (
+      (this?.startedAt?.getTime() || 0) + this.startDelay < new Date().getTime()
+    );
+  }
+
+  get loadingDelay() {
+    return (
+      this.startDelay -
+      Math.trunc(new Date().getTime() - (this?.startedAt?.getTime() || 0))
+    );
+  }
+
+  get nextLevel() {
+    return this.currentLevel + 1;
+  }
 
   centrifugo?: Centrifuge;
 
@@ -56,6 +100,10 @@ class State {
         // @ts-ignore
         this.profile.last_energy_change + calculatedEnergy;
     }
+  }
+
+  get nextLevelScore() {
+    return this.levels[this.nextLevel - 1];
   }
 }
 

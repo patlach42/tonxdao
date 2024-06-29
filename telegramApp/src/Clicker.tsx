@@ -93,33 +93,47 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
     state.centrifugo = centrifugo || undefined;
   }, [centrifugo]);
 
-  const { particlesCount, energy, maxEnergy, coinsPerSecond } = state;
+  const { particlesCount, energy, maxEnergy, coinsPerSecond, nextLevelScore } =
+    state;
 
   const touchRef = useRef(false);
   const touchingRef = useRef(false);
 
   const energyPercent = (energy / maxEnergy) * 100;
-  const levelPercent = (particlesCount / 25000) * 100;
-
+  const levelPercent = (particlesCount / nextLevelScore) * 100;
   const lastCountedFrame = useRef(performance.now());
   const lastEnergyRestoredFrame = useRef(performance.now());
   const app = useWebApp();
 
+  const touchingDelay = state?.startedAt
+    ? new Date()?.getTime() - state?.startedAt?.getTime()
+    : 0;
+  const isStarted = touchingDelay > state.startDelay;
+  const touchingCountDown = Math.abs(
+    Math.max(0, state.startDelay - touchingDelay),
+  );
+  const displayTouchingCountDown = Math.round(touchingCountDown / 1000);
   const isVibrating =
-    touchingRef.current && touchRef.current && state.energy > 0;
+    touchingRef.current && touchRef.current && state.energy > 0 && isStarted;
   const frameTime = useFrameTime();
+  // alert(new Date().getTime())
   useEffect(() => {
     if (touchingRef.current && !touchRef.current) {
       touchingRef.current = false;
+      state.stop();
     } else if (!touchingRef.current && touchRef.current) {
       touchingRef.current = true;
-    } else if (touchingRef.current && touchRef.current) {
+      app?.HapticFeedback?.impactOccurred("soft");
+      state.start();
+    } else if (touchingRef.current && touchRef.current && isStarted) {
       // pressing now
       if (frameTime - lastCountedFrame.current >= 1000 / coinsPerSecond) {
         if (state.tap()) {
           lastCountedFrame.current = frameTime;
         }
       }
+    } else if (touchingRef.current && touchRef.current && !isStarted) {
+      // alert();
     }
 
     // Energy restore
@@ -127,7 +141,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
       lastEnergyRestoredFrame.current = frameTime;
       state.calculateEnergy();
     }
-  }, [centrifugo, frameTime]);
+  }, [app?.HapticFeedback, centrifugo, coinsPerSecond, frameTime, isStarted]);
 
   const lastVibrateFrame = useRef(performance.now());
   type VibrationType =
@@ -436,14 +450,26 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
               className="w-full flex flex-row justify-between albert-sans-semi-bold text-xs"
               style={{ color: "#A3A3A3" }}
             >
-              <div>Level 1</div>
-              <div>Level 2</div>
+              <div>Level {`${state.currentLevel}`}</div>
+              <div>Level {`${state.nextLevel}`}</div>
             </div>
           </div>
           <div className="bg-opacity-35 flex flex-row text-white mt-2 font-bold text-2xl gap-2 sora-bold items-center">
             <div className="coin-logo"></div>
             <div>{particlesCount} $XDAO</div>
           </div>
+          {state?.startedAt && displayTouchingCountDown > 0 ? (
+            <div
+              className="ml-auto mr-auto gap-6 border flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl z-40"
+              style={{
+                backgroundColor: "#262626",
+                borderColor: "#2D2D2D",
+                color: "#C7C7C7",
+              }}
+            >
+              <div style={{ color: "#C7C7C7" }}>{displayTouchingCountDown}</div>
+            </div>
+          ) : null}
           <div
             className="ml-auto mr-auto gap-6 border flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl z-40"
             style={{
@@ -452,7 +478,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
               color: "#C7C7C7",
             }}
           >
-            <div style={{ color: "#C7C7C7" }}>Vibration Style:</div>
+            <div style={{ color: "#C7C7C7" }}>Vibration:</div>
             <div
               style={{ color: vibrationStyle === 1 ? "#AD00FF" : "#C7C7C7" }}
               onClick={() => setVibrationStyle(1)}
