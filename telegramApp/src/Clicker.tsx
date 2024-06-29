@@ -139,55 +139,168 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
 
   const useVibrationStyle1 = useCallback(() => {
     if (vibrationCycle === 0) {
-      setVibrationDelay(200);
+      setVibrationDelay(150);
       setVibrationType(3);
       setVibrationCycle(1);
     } else if (vibrationCycle === 1) {
-      setVibrationDelay(700);
+      setVibrationDelay(600);
       setVibrationType(2);
       setVibrationCycle(2);
     } else if (vibrationCycle === 2) {
-      setVibrationDelay(200);
+      setVibrationDelay(150);
       setVibrationType(1);
       setVibrationCycle(3);
     } else if (vibrationCycle === 3) {
-      setVibrationDelay(700);
+      setVibrationDelay(600);
       setVibrationType(3);
       setVibrationCycle(4);
     } else if (vibrationCycle === 4) {
-      setVibrationDelay(200);
+      setVibrationDelay(150);
       setVibrationType(2);
       setVibrationCycle(5);
     } else if (vibrationCycle === 5) {
-      setVibrationDelay(700);
+      setVibrationDelay(600);
       setVibrationType(1);
       setVibrationCycle(0);
     }
   }, [vibrationCycle]);
   const useVibrationStyle2 = useCallback(() => {
     if (vibrationCycle === 0) {
-      setVibrationDelay(50);
+      setVibrationDelay(430);
       setVibrationType(3);
       setVibrationCycle(1);
     } else if (vibrationCycle === 1) {
-      setVibrationDelay(50);
+      setVibrationDelay(430);
       setVibrationType(3);
       setVibrationCycle(2);
     } else if (vibrationCycle === 2) {
-      setVibrationDelay(50);
+      setVibrationDelay(430);
       setVibrationType(3);
       setVibrationCycle(3);
     } else if (vibrationCycle === 3) {
-      setVibrationDelay(100);
+      setVibrationDelay(430);
       setVibrationType(3);
       setVibrationCycle(4);
     } else if (vibrationCycle === 4) {
-      setVibrationDelay(100);
-      setVibrationType(4);
-      setVibrationCycle(0);
-    } else if (vibrationCycle === 5) {
-      setVibrationDelay(500);
+      setVibrationDelay(430);
       setVibrationType(3);
+      setVibrationCycle(5);
+    } else if (vibrationCycle === 5) {
+      setVibrationDelay(430);
+      setVibrationType(3);
+      setVibrationCycle(6);
+    } else if (vibrationCycle === 6) {
+      setVibrationDelay(430);
+      setVibrationType(3);
+      setVibrationCycle(7);
+    } else if (vibrationCycle === 7) {
+      setVibrationDelay(430);
+      setVibrationType(3);
+      setVibrationCycle(0);
+    }
+  }, [vibrationCycle]);
+  const useVibrationStyle3 = useCallback(() => {
+    if (vibrationCycle === 0) {
+      setVibrationDelay(215);
+      setVibrationType(2);
+      setVibrationCycle(1);
+    } else if (vibrationCycle === 1) {
+      setVibrationDelay(215);
+      setVibrationType(6);
+      setVibrationCycle(2);
+    } else if (vibrationCycle === 2) {
+      setVibrationDelay(215);
+      setVibrationType(2);
+      setVibrationCycle(3);
+    } else if (vibrationCycle === 3) {
+      setVibrationDelay(215);
+      setVibrationType(6);
+      setVibrationCycle(4);
+    } else if (vibrationCycle === 4) {
+      setVibrationDelay(215);
+      setVibrationType(2);
+      setVibrationCycle(5);
+    } else if (vibrationCycle === 5) {
+      setVibrationDelay(215);
+      setVibrationType(6);
+      setVibrationCycle(6);
+    } else if (vibrationCycle === 6) {
+      setVibrationDelay(215);
+      setVibrationType(2);
+      setVibrationCycle(7);
+    } else if (vibrationCycle === 7) {
+      setVibrationDelay(215);
+      setVibrationType(6);
+      setVibrationCycle(0);
+    }
+  }, [vibrationCycle]);
+  const useVibrationStyle4 = useCallback(() => {
+    if (vibrationCycle === 0) {
+      setVibrationDelay(215);
+      setVibrationType(2);
+      setVibrationCycle(1);
+    } else if (vibrationCycle === 1) {
+      setVibrationDelay(215);
+      setVibrationType(6);
+      setVibrationCycle(2);
+    } else if (vibrationCycle === 2) {
+      setVibrationDelay(215);
+      setVibrationType(6);
+      setVibrationCycle(3);
+    } else if (vibrationCycle === 3) {
+      setVibrationDelay(215);
+      setVibrationType(2);
+      setVibrationCycle(4);
+    } else if (vibrationCycle === 4) {
+      setVibrationDelay(215);
+      setVibrationType(6);
+      setVibrationCycle(5);
+    } else if (vibrationCycle === 5) {
+      setVibrationDelay(215);
+      setVibrationType(6);
+      setVibrationCycle(6);
+    } else if (vibrationCycle === 6) {
+      setVibrationDelay(215);
+      setVibrationType(2);
+      setVibrationCycle(7);
+    } else if (vibrationCycle === 7) {
+      setVibrationDelay(215);
+      setVibrationType(6);
+      setVibrationCycle(0);
+    }
+  }, [vibrationCycle]);
+  const useVibrationStyle5 = useCallback(() => {
+    if (vibrationCycle === 0) {
+      setVibrationDelay(150);
+      setVibrationType(6);
+      setVibrationCycle(1);
+    } else if (vibrationCycle === 1) {
+      setVibrationDelay(140);
+      setVibrationType(6);
+      setVibrationCycle(2);
+    } else if (vibrationCycle === 2) {
+      setVibrationDelay(130);
+      setVibrationType(6);
+      setVibrationCycle(3);
+    } else if (vibrationCycle === 3) {
+      setVibrationDelay(120);
+      setVibrationType(6);
+      setVibrationCycle(4);
+    } else if (vibrationCycle === 4) {
+      setVibrationDelay(110);
+      setVibrationType(6);
+      setVibrationCycle(5);
+    } else if (vibrationCycle === 5) {
+      setVibrationDelay(100);
+      setVibrationType(6);
+      setVibrationCycle(6);
+    } else if (vibrationCycle === 6) {
+      setVibrationDelay(90);
+      setVibrationType(6);
+      setVibrationCycle(7);
+    } else if (vibrationCycle === 7) {
+      setVibrationDelay(80);
+      setVibrationType(6);
       setVibrationCycle(0);
     }
   }, [vibrationCycle]);
@@ -198,19 +311,30 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
     if (vibrationStyle === 2) {
       useVibrationStyle2();
     }
+    if (vibrationStyle === 3) {
+      useVibrationStyle3();
+    }
+    if (vibrationStyle === 4) {
+      useVibrationStyle4();
+    }
+    if (vibrationStyle === 5) {
+      useVibrationStyle5();
+    }
   }, [useVibrationStyle1, useVibrationStyle2, vibrationStyle]);
 
   const vibrate = useCallback(() => {
     if (vibrationType === 1) {
       app?.HapticFeedback?.impactOccurred("soft");
     } else if (vibrationType === 2) {
-      app?.HapticFeedback?.impactOccurred("heavy");
+      app?.HapticFeedback?.impactOccurred("rigid");
     } else if (vibrationType === 3) {
       app?.HapticFeedback?.impactOccurred("light");
     } else if (vibrationType === 4) {
       app?.HapticFeedback?.notificationOccurred("error");
     } else if (vibrationType === 5) {
       app?.HapticFeedback?.notificationOccurred("success");
+    } else if (vibrationType === 6) {
+      app?.HapticFeedback?.selectionChanged();
     }
   }, [vibrationType, app?.HapticFeedback]);
 
@@ -299,6 +423,24 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
               onClick={() => setVibrationStyle(2)}
             >
               2
+            </div>
+            <div
+              style={{ color: vibrationStyle === 3 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(3)}
+            >
+              3
+            </div>
+            <div
+              style={{ color: vibrationStyle === 4 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(4)}
+            >
+              4
+            </div>
+            <div
+              style={{ color: vibrationStyle === 5 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(5)}
+            >
+              5
             </div>
           </div>
         </div>
