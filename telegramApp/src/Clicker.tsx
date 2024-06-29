@@ -130,177 +130,182 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   }, [centrifugo, frameTime]);
 
   const lastVibrateFrame = useRef(performance.now());
-  type VibrationType = 1 | 2 | 3 | 4 | 5 | 6;
+  type VibrationType =
+    | "soft"
+    | "heavy"
+    | "light"
+    | "error"
+    | "success"
+    | "warning"
+    | "selection"
+    | "rigid"
+    | "medium";
   type VibrationStyle = 1 | 2 | 3 | 4 | 5 | 6;
   const [vibrationStyle, setVibrationStyle] = useState<VibrationStyle>(2);
   const [vibrationCycle, setVibrationCycle] = useState<number>(0);
-  const [vibrationType, setVibrationType] = useState<VibrationType>(1);
+  const [vibrationType, setVibrationType] = useState<VibrationType>("soft");
   const [vibrationDelay, setVibrationDelay] = useState<number>(1000);
 
   const useVibrationStyle1 = useCallback(() => {
     if (vibrationCycle === 0) {
-      setVibrationDelay(150);
-      setVibrationType(3);
+      setVibrationDelay(170);
+      setVibrationType("soft");
       setVibrationCycle(1);
     } else if (vibrationCycle === 1) {
-      setVibrationDelay(600);
-      setVibrationType(2);
+      setVibrationDelay(500);
+      setVibrationType("heavy");
       setVibrationCycle(2);
     } else if (vibrationCycle === 2) {
-      setVibrationDelay(150);
-      setVibrationType(1);
+      setVibrationDelay(170);
+      setVibrationType("soft");
       setVibrationCycle(3);
     } else if (vibrationCycle === 3) {
-      setVibrationDelay(600);
-      setVibrationType(3);
+      setVibrationDelay(500);
+      setVibrationType("heavy");
       setVibrationCycle(4);
     } else if (vibrationCycle === 4) {
-      setVibrationDelay(150);
-      setVibrationType(2);
+      setVibrationDelay(170);
+      setVibrationType("soft");
       setVibrationCycle(5);
     } else if (vibrationCycle === 5) {
-      setVibrationDelay(600);
-      setVibrationType(1);
+      setVibrationDelay(500);
+      setVibrationType("heavy");
       setVibrationCycle(0);
     }
   }, [vibrationCycle]);
   const useVibrationStyle2 = useCallback(() => {
     if (vibrationCycle === 0) {
       setVibrationDelay(430);
-      setVibrationType(3);
+      setVibrationType("heavy");
       setVibrationCycle(1);
     } else if (vibrationCycle === 1) {
       setVibrationDelay(430);
-      setVibrationType(3);
+      setVibrationType("heavy");
       setVibrationCycle(2);
     } else if (vibrationCycle === 2) {
       setVibrationDelay(430);
-      setVibrationType(3);
+      setVibrationType("heavy");
       setVibrationCycle(3);
     } else if (vibrationCycle === 3) {
       setVibrationDelay(430);
-      setVibrationType(3);
+      setVibrationType("heavy");
       setVibrationCycle(4);
     } else if (vibrationCycle === 4) {
       setVibrationDelay(430);
-      setVibrationType(3);
+      setVibrationType("heavy");
       setVibrationCycle(5);
     } else if (vibrationCycle === 5) {
       setVibrationDelay(430);
-      setVibrationType(3);
+      setVibrationType("heavy");
       setVibrationCycle(6);
     } else if (vibrationCycle === 6) {
       setVibrationDelay(430);
-      setVibrationType(3);
+      setVibrationType("heavy");
       setVibrationCycle(7);
     } else if (vibrationCycle === 7) {
       setVibrationDelay(430);
-      setVibrationType(3);
+      setVibrationType("heavy");
       setVibrationCycle(0);
     }
   }, [vibrationCycle]);
   const useVibrationStyle3 = useCallback(() => {
     if (vibrationCycle === 0) {
       setVibrationDelay(215);
-      setVibrationType(2);
+      setVibrationType("heavy");
       setVibrationCycle(1);
     } else if (vibrationCycle === 1) {
       setVibrationDelay(215);
-      setVibrationType(6);
+      setVibrationType("selection");
       setVibrationCycle(2);
     } else if (vibrationCycle === 2) {
       setVibrationDelay(215);
-      setVibrationType(2);
+      setVibrationType("heavy");
       setVibrationCycle(3);
     } else if (vibrationCycle === 3) {
       setVibrationDelay(215);
-      setVibrationType(6);
+      setVibrationType("selection");
       setVibrationCycle(4);
     } else if (vibrationCycle === 4) {
       setVibrationDelay(215);
-      setVibrationType(2);
+      setVibrationType("heavy");
       setVibrationCycle(5);
     } else if (vibrationCycle === 5) {
       setVibrationDelay(215);
-      setVibrationType(6);
+      setVibrationType("selection");
       setVibrationCycle(6);
     } else if (vibrationCycle === 6) {
       setVibrationDelay(215);
-      setVibrationType(2);
+      setVibrationType("heavy");
       setVibrationCycle(7);
     } else if (vibrationCycle === 7) {
       setVibrationDelay(215);
-      setVibrationType(6);
+      setVibrationType("selection");
       setVibrationCycle(0);
     }
   }, [vibrationCycle]);
   const useVibrationStyle4 = useCallback(() => {
     if (vibrationCycle === 0) {
       setVibrationDelay(215);
-      setVibrationType(2);
+      setVibrationType("heavy");
       setVibrationCycle(1);
     } else if (vibrationCycle === 1) {
       setVibrationDelay(215);
-      setVibrationType(6);
+      setVibrationType("selection");
       setVibrationCycle(2);
     } else if (vibrationCycle === 2) {
       setVibrationDelay(215);
-      setVibrationType(6);
+      setVibrationType("selection");
       setVibrationCycle(3);
     } else if (vibrationCycle === 3) {
       setVibrationDelay(215);
-      setVibrationType(2);
+      setVibrationType("heavy");
       setVibrationCycle(4);
     } else if (vibrationCycle === 4) {
       setVibrationDelay(215);
-      setVibrationType(6);
+      setVibrationType("selection");
       setVibrationCycle(5);
     } else if (vibrationCycle === 5) {
       setVibrationDelay(215);
-      setVibrationType(6);
+      setVibrationType("selection");
       setVibrationCycle(6);
     } else if (vibrationCycle === 6) {
       setVibrationDelay(215);
-      setVibrationType(2);
-      setVibrationCycle(7);
-    } else if (vibrationCycle === 7) {
-      setVibrationDelay(215);
-      setVibrationType(6);
+      setVibrationType("heavy");
       setVibrationCycle(0);
     }
   }, [vibrationCycle]);
   const useVibrationStyle5 = useCallback(() => {
     if (vibrationCycle === 0) {
-      setVibrationDelay(150);
-      setVibrationType(6);
+      setVibrationDelay(1000);
+      setVibrationType("warning");
       setVibrationCycle(1);
     } else if (vibrationCycle === 1) {
-      setVibrationDelay(140);
-      setVibrationType(6);
+      setVibrationDelay(1000);
+      setVibrationType("warning");
       setVibrationCycle(2);
     } else if (vibrationCycle === 2) {
-      setVibrationDelay(130);
-      setVibrationType(6);
+      setVibrationDelay(1000);
+      setVibrationType("error");
       setVibrationCycle(3);
     } else if (vibrationCycle === 3) {
-      setVibrationDelay(120);
-      setVibrationType(6);
+      setVibrationDelay(1000);
+      setVibrationType("error");
       setVibrationCycle(4);
     } else if (vibrationCycle === 4) {
-      setVibrationDelay(110);
-      setVibrationType(6);
+      setVibrationDelay(1000);
+      setVibrationType("success");
       setVibrationCycle(5);
     } else if (vibrationCycle === 5) {
-      setVibrationDelay(100);
-      setVibrationType(6);
+      setVibrationDelay(1000);
+      setVibrationType("success");
       setVibrationCycle(6);
     } else if (vibrationCycle === 6) {
-      setVibrationDelay(90);
-      setVibrationType(6);
+      setVibrationDelay(1000);
+      setVibrationType("rigid");
       setVibrationCycle(7);
     } else if (vibrationCycle === 7) {
-      setVibrationDelay(80);
-      setVibrationType(6);
+      setVibrationDelay(1000);
+      setVibrationType("medium");
       setVibrationCycle(0);
     }
   }, [vibrationCycle]);
@@ -323,17 +328,23 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   }, [useVibrationStyle1, useVibrationStyle2, vibrationStyle]);
 
   const vibrate = useCallback(() => {
-    if (vibrationType === 1) {
+    if (vibrationType === "soft") {
       app?.HapticFeedback?.impactOccurred("soft");
-    } else if (vibrationType === 2) {
-      app?.HapticFeedback?.impactOccurred("rigid");
-    } else if (vibrationType === 3) {
+    } else if (vibrationType === "heavy") {
+      app?.HapticFeedback?.impactOccurred("heavy");
+    } else if (vibrationType === "light") {
       app?.HapticFeedback?.impactOccurred("light");
-    } else if (vibrationType === 4) {
+    } else if (vibrationType === "medium") {
+      app?.HapticFeedback?.impactOccurred("medium");
+    } else if (vibrationType === "rigid") {
+      app?.HapticFeedback?.impactOccurred("rigid");
+    } else if (vibrationType === "error") {
       app?.HapticFeedback?.notificationOccurred("error");
-    } else if (vibrationType === 5) {
+    } else if (vibrationType === "success") {
       app?.HapticFeedback?.notificationOccurred("success");
-    } else if (vibrationType === 6) {
+    } else if (vibrationType === "warning") {
+      app?.HapticFeedback?.notificationOccurred("warning");
+    } else if (vibrationType === "selection") {
       app?.HapticFeedback?.selectionChanged();
     }
   }, [vibrationType, app?.HapticFeedback]);
