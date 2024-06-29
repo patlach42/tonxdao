@@ -276,28 +276,63 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   }, [vibrationCycle]);
   const useVibrationStyle5 = useCallback(() => {
     if (vibrationCycle === 0) {
-      setVibrationDelay(600);
+      setVibrationDelay(100);
       setVibrationType("warning");
       setVibrationCycle(1);
     } else if (vibrationCycle === 1) {
-      setVibrationDelay(600);
-      setVibrationType("warning");
+      setVibrationDelay(70);
+      setVibrationType("selection");
       setVibrationCycle(2);
     } else if (vibrationCycle === 2) {
-      setVibrationDelay(600);
-      setVibrationType("error");
+      setVibrationDelay(70);
+      setVibrationType("selection");
       setVibrationCycle(3);
     } else if (vibrationCycle === 3) {
-      setVibrationDelay(600);
-      setVibrationType("error");
+      setVibrationDelay(70);
+      setVibrationType("selection");
       setVibrationCycle(4);
     } else if (vibrationCycle === 4) {
-      setVibrationDelay(600);
-      setVibrationType("success");
+      setVibrationDelay(70);
+      setVibrationType("selection");
       setVibrationCycle(5);
     } else if (vibrationCycle === 5) {
-      setVibrationDelay(600);
-      setVibrationType("success");
+      setVibrationDelay(70);
+      setVibrationType("selection");
+      setVibrationCycle(0);
+    }
+  }, [vibrationCycle]);
+  const useVibrationStyle6 = useCallback(() => {
+    if (vibrationCycle === 0) {
+      setVibrationDelay(176);
+      setVibrationType("rigid");
+      setVibrationCycle(1);
+    } else if (vibrationCycle === 1) {
+      setVibrationDelay(176);
+      setVibrationType("selection");
+      setVibrationCycle(2);
+    } else if (vibrationCycle === 2) {
+      setVibrationDelay(176);
+      setVibrationType("warning");
+      setVibrationCycle(3);
+    } else if (vibrationCycle === 3) {
+      setVibrationDelay(176);
+      setVibrationType("selection");
+      setVibrationCycle(4);
+    } else if (vibrationCycle === 4) {
+      setVibrationDelay(176);
+      setVibrationType("selection");
+      setVibrationCycle(5);
+    } else if (vibrationCycle === 5) {
+      setVibrationDelay(176);
+      setVibrationType("rigid");
+      setVibrationCycle(6);
+    } else if (vibrationCycle === 6) {
+      setVibrationDelay(176);
+      setVibrationType("warning");
+      setVibrationCycle(7);
+    } else if (vibrationCycle === 7) {
+      setVibrationDelay(176);
+      setVibrationType("selection");
       setVibrationCycle(0);
     }
   }, [vibrationCycle]);
@@ -316,6 +351,9 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
     }
     if (vibrationStyle === 5) {
       useVibrationStyle5();
+    }
+    if (vibrationStyle === 6) {
+      useVibrationStyle6();
     }
   }, [useVibrationStyle1, useVibrationStyle2, vibrationStyle]);
 
@@ -444,6 +482,12 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
               onClick={() => setVibrationStyle(5)}
             >
               5
+            </div>
+            <div
+              style={{ color: vibrationStyle === 6 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(6)}
+            >
+              6
             </div>
           </div>
         </div>
