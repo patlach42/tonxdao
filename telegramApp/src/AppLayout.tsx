@@ -91,13 +91,17 @@ export function AppLayout() {
               />
             </svg>
           </NavLink>
-          {/*<NavLink*/}
-          {/*  to="/boosts"*/}
-          {/*  className="flex flex-col items-center justify-center gap-2"*/}
-          {/*>*/}
-          {/*  <BsFire />*/}
-          {/*  <span className={"text-sm"}>Boost</span>*/}
-          {/*</NavLink>*/}
+          <NavLink
+            to="/boosts"
+            className={({ isActive }) =>
+              [
+                "flex flex-row flex-1 items-center justify-center gap-2 rounded-lg p-1",
+                isActive ? "active-nav-tab" : "",
+              ].join(" ")
+            }
+          >
+            <span className={"text-xs"}>Boosts</span>
+          </NavLink>
           {/*<NavLink*/}
           {/*  to="/stats"*/}
           {/*  className="flex flex-col items-center justify-center gap-2"*/}

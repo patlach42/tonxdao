@@ -29,15 +29,15 @@ async def rpc(session: SessionDep, redis: RedisDep, data: CentrifugoRpc) -> dict
 
 
 ENERGY_PER_SECOND = 1
-MAX_ENERGY = 500
+MAX_ENERGY = 6000
 
 
 async def get_user_energy(redis: RedisDep, user_id):
     last_energy_change = float(await redis.hget(f"user:{user_id}", "last_energy_change"))
     last_energy = float(await redis.hget(f"user:{user_id}", "energy"))
-    energy_per_second = 1
+    energy_per_second = ENERGY_PER_SECOND
     max_energy = MAX_ENERGY
-    calculated_energy = round(time.time() - last_energy_change) // energy_per_second
+    calculated_energy = (time.time() - last_energy_change) // 1
     total_energy = last_energy + calculated_energy
     result_energy = min(total_energy, max_energy) if total_energy > 0 else 0
     return result_energy

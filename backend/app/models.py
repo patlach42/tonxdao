@@ -29,7 +29,7 @@ class UserUpdateMe(SQLModel):
     email: str | None = None
 
 
-DEFAULT_ENERGY = 500
+DEFAULT_ENERGY = 6000
 
 
 class User(UserBase, table=True):
@@ -43,7 +43,7 @@ class User(UserBase, table=True):
 
     energy: int | None = Field(default=0)
     last_energy_change: Optional[datetime.datetime]
-    max_energy: int | None = Field(default=0)
+    max_energy: int | None = Field(default=DEFAULT_ENERGY)
 
 
 # Properties to return via API, id is always required

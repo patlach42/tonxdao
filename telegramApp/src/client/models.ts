@@ -7,6 +7,16 @@ export type Body_login_login_access_token = {
   client_secret?: string | null;
 };
 
+export type BoostEnum = "energy";
+
+export type BoostRequest = {
+  slug: BoostEnum;
+};
+
+export type BoostResponse = {
+  slug: BoostEnum;
+};
+
 export type CentrifugoRpc = {
   user: string;
   method: CentrifugoRpcMethod;

@@ -49,6 +49,28 @@ export const $Body_login_login_access_token = {
   },
 } as const;
 
+export const $BoostEnum = {
+  type: '"energy"',
+} as const;
+
+export const $BoostRequest = {
+  properties: {
+    slug: {
+      type: "BoostEnum",
+      isRequired: true,
+    },
+  },
+} as const;
+
+export const $BoostResponse = {
+  properties: {
+    slug: {
+      type: "BoostEnum",
+      isRequired: true,
+    },
+  },
+} as const;
+
 export const $CentrifugoRpc = {
   properties: {
     user: {

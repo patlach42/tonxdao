@@ -1,44 +1,32 @@
-import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
+import React, {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useCentrifugo } from "./Centrifugo.tsx";
 import { Vector3 } from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { WaveMaterial } from "./Material";
-import { Physics, RigidBody } from "@react-three/rapier";
-import { easing } from "maath";
 import { observer } from "mobx-react-lite";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { state } from "./state.tsx";
-import { makeAutoObservable } from "mobx";
 import { useWebApp } from "./TelegramAppProvider.tsx";
-import { Stars } from "@react-three/drei";
-import { Bloom, EffectComposer } from "@react-three/postprocessing";
-
-class Game {
-  energy: number;
-
-  constructor() {
-    makeAutoObservable(this);
-    this.energy = this.maxEnergy;
-  }
-
-  get maxEnergy() {
-    return 500;
-  }
-  minusEnergy() {
-    this.energy = Math.max(0, this.energy - 1);
-    // alert(this.energy);
-  }
-  plusEnergy() {
-    this.energy = Math.min(this.maxEnergy, this.energy + 1);
-    // alert(this.energy);
-  }
-  start() {}
-}
-
-const game = new Game();
+// import {
+//   Glitch,
+//   EffectComposer,
+//   Autofocus,
+//   Depth,
+//   DepthOfField,
+//   DotScreen,
+//   HueSaturation,
+//   Sepia,
+//   ASCII,
+// } from "@react-three/postprocessing";
 
 const useFrameTime = () => {
   const [frameTime, setFrameTime] = useState(performance.now());
@@ -54,33 +42,22 @@ const useFrameTime = () => {
   return frameTime;
 };
 
-const useFrameCallback = (callback: (time: number) => void) => {
-  const frameTime = useFrameTime();
-  useEffect(() => {
-    callback(frameTime);
-  }, [frameTime, callback]);
-};
-
 const ShaderPlane: React.FC<{
   position?: Vector3;
   scale?: number;
   isVibrating?: boolean;
   isRef?: boolean;
-}> = ({ position, scale, isVibrating, isRef }) => {
-  const ref = useRef();
-  const api = useRef();
+}> = observer(() => {
+  const ref = useRef<{ coins: number; time: number }>({ coins: 0, time: 0 });
   const { viewport, size } = useThree();
-  useFrame((state, delta) => {
-    if (isVibrating) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ref.current.time += delta * 0.5;
-    } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ref.current.time += delta * 0.1;
-    }
-    // easing.damp3(ref.current.pointer, state.pointer, 0.2, delta);
+  const { particlesCount } = state;
+
+  useEffect(() => {
+    ref.current.coins = particlesCount;
+  }, [particlesCount]);
+
+  useFrame((_state, delta) => {
+    ref.current.time += delta;
   });
   return (
     <mesh scale={[viewport.width, viewport.height, 1]}>
@@ -94,39 +71,17 @@ const ShaderPlane: React.FC<{
       />
     </mesh>
   );
-};
+});
 const Renderer: React.FC<{ isTouching: boolean }> = ({ isTouching }) => {
-  const starsRef = useRef();
-  useFrame((state, delta) => {
-    if (starsRef.current) {
-      const multiplier = isTouching ? 0.06 : 0.01;
-      // eslint-disable-next-line
-      // @ts-ignore
-      starsRef.current.rotation.y += delta * multiplier;
-    }
-  });
   return (
     <>
-      <color attach="background" args={["#ffffff"]} />
       <ShaderPlane isVibrating={isTouching}></ShaderPlane>
-      {/*<ShaderPlane position={new Vector3(-100, -150, 0)} isRef></ShaderPlane>*/}
-      {/*<ShaderPlane position={new Vector3(100, -150, 0)} isRef></ShaderPlane>*/}
-
-      {/*<Stars*/}
-      {/*  saturation={1}*/}
-      {/*  count={100}*/}
-      {/*  speed={1}*/}
-      {/*  // eslint-disable-next-line*/}
-      {/*  // @ts-ignore*/}
-      {/*  ref={starsRef}*/}
-      {/*/>*/}
       {/*<EffectComposer>*/}
-      {/*  <Bloom*/}
-      {/*    kernelSize={3}*/}
-      {/*    luminanceThreshold={0}*/}
-      {/*    luminanceSmoothing={0.4}*/}
-      {/*    intensity={0.6}*/}
-      {/*  />*/}
+      {/*<Sepia />*/}
+      {/*<Autofocus blur={3} />*/}
+      {/*<ASCII />*/}
+      {/*<DepthOfField />*/}
+      {/*<DotScreen />*/}
       {/*</EffectComposer>*/}
     </>
   );
@@ -134,129 +89,154 @@ const Renderer: React.FC<{ isTouching: boolean }> = ({ isTouching }) => {
 
 const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   const centrifugo = useCentrifugo();
-  const maxEnery = 500;
+  useEffect(() => {
+    state.centrifugo = centrifugo || undefined;
+  }, [centrifugo]);
 
-  // { particlesCount, onTouch = () => {} }
-  const particlesCountRef = useRef(state.particlesCount);
-  // const [particlesCount, setParticlesCount] = useState(0);
-  const { particlesCount } = state;
-  const energy = game.energy;
+  const { particlesCount, energy, maxEnergy, coinsPerSecond } = state;
 
   const touchRef = useRef(false);
   const touchingRef = useRef(false);
 
-  useEffect(() => {
-    game.start();
-    const calculatedEnergy =
-      (new Date().getTime() -
-        new Date((state.profile?.last_energy_change || 0) * 1000).getTime()) /
-      1000;
-    game.energy = Math.min(
-      Math.floor(
-        Number(
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          state.profile?.energy + calculatedEnergy,
-        ),
-      ),
-      maxEnery,
-    );
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    state.profile.energy = game.energy;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    state.profile.last_energy_change = state?.profile?.last_energy_change
-      ? state.profile.last_energy_change + calculatedEnergy
-      : new Date().getTime() / 1000;
-    // game.energy = state.profile?.last_energy_change || 0;
-  }, []);
-
-  const energyPercent = (energy / maxEnery) * 100;
+  const energyPercent = (energy / maxEnergy) * 100;
   const levelPercent = (particlesCount / 25000) * 100;
 
   const lastCountedFrame = useRef(performance.now());
   const lastEnergyRestoredFrame = useRef(performance.now());
-  const lastVibrateFrame = useRef(performance.now());
   const app = useWebApp();
 
-  useFrameCallback((frameTime) => {
+  const isVibrating =
+    touchingRef.current && touchRef.current && state.energy > 0;
+  const frameTime = useFrameTime();
+  useEffect(() => {
     if (touchingRef.current && !touchRef.current) {
-      console.log("touchingRef.current && !touchRef.current");
       touchingRef.current = false;
     } else if (!touchingRef.current && touchRef.current) {
-      console.log("!touchingRef.current && touchRef.current");
       touchingRef.current = true;
     } else if (touchingRef.current && touchRef.current) {
       // pressing now
-      if (frameTime - lastCountedFrame.current >= 50) {
-        lastCountedFrame.current = frameTime;
-        if (game.energy > 0) {
-          particlesCountRef.current += 1;
-          state.particlesCount = particlesCountRef.current;
-          centrifugo?.publish("game", {});
-          game.energy = Math.max(0, game.energy - 1);
-          if (state.profile) {
-            state.profile.last_energy_change = new Date().getTime() / 1000;
-            state.profile.energy = game.energy;
-          }
+      if (frameTime - lastCountedFrame.current >= 1000 / coinsPerSecond) {
+        if (state.tap()) {
+          lastCountedFrame.current = frameTime;
         }
       }
     }
-    if (frameTime - lastEnergyRestoredFrame.current >= 100) {
+
+    // Energy restore
+    if (lastEnergyRestoredFrame.current + 100 < frameTime) {
       lastEnergyRestoredFrame.current = frameTime;
-      const lastEnergy = game.energy;
-      const calculatedEnergy =
-        (new Date().getTime() -
-          new Date((state.profile?.last_energy_change || 0) * 1000).getTime()) /
-        1000;
-      let _energy = Math.floor(Number(game.energy + calculatedEnergy));
-      _energy = _energy <= maxEnery ? _energy : 500;
-      game.energy = _energy;
-      if (lastEnergy !== game.energy) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        state.profile.energy = game.energy;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        state.profile.last_energy_change =
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          state.profile.last_energy_change + calculatedEnergy;
-      }
+      state.calculateEnergy();
     }
-  });
+  }, [centrifugo, frameTime]);
+
+  const lastVibrateFrame = useRef(performance.now());
+  type VibrationType = 1 | 2 | 3 | 4 | 5 | 6;
+  type VibrationStyle = 1 | 2 | 3 | 4 | 5 | 6;
+  const [vibrationStyle, setVibrationStyle] = useState<VibrationStyle>(2);
+  const [vibrationCycle, setVibrationCycle] = useState<number>(0);
+  const [vibrationType, setVibrationType] = useState<VibrationType>(1);
+  const [vibrationDelay, setVibrationDelay] = useState<number>(1000);
+
+  const useVibrationStyle1 = useCallback(() => {
+    if (vibrationCycle === 0) {
+      setVibrationDelay(200);
+      setVibrationType(3);
+      setVibrationCycle(1);
+    } else if (vibrationCycle === 1) {
+      setVibrationDelay(700);
+      setVibrationType(2);
+      setVibrationCycle(2);
+    } else if (vibrationCycle === 2) {
+      setVibrationDelay(200);
+      setVibrationType(1);
+      setVibrationCycle(3);
+    } else if (vibrationCycle === 3) {
+      setVibrationDelay(700);
+      setVibrationType(3);
+      setVibrationCycle(4);
+    } else if (vibrationCycle === 4) {
+      setVibrationDelay(200);
+      setVibrationType(2);
+      setVibrationCycle(5);
+    } else if (vibrationCycle === 5) {
+      setVibrationDelay(700);
+      setVibrationType(1);
+      setVibrationCycle(0);
+    }
+  }, [vibrationCycle]);
+  const useVibrationStyle2 = useCallback(() => {
+    if (vibrationCycle === 0) {
+      setVibrationDelay(50);
+      setVibrationType(3);
+      setVibrationCycle(1);
+    } else if (vibrationCycle === 1) {
+      setVibrationDelay(50);
+      setVibrationType(3);
+      setVibrationCycle(2);
+    } else if (vibrationCycle === 2) {
+      setVibrationDelay(50);
+      setVibrationType(3);
+      setVibrationCycle(3);
+    } else if (vibrationCycle === 3) {
+      setVibrationDelay(100);
+      setVibrationType(3);
+      setVibrationCycle(4);
+    } else if (vibrationCycle === 4) {
+      setVibrationDelay(100);
+      setVibrationType(4);
+      setVibrationCycle(0);
+    } else if (vibrationCycle === 5) {
+      setVibrationDelay(500);
+      setVibrationType(3);
+      setVibrationCycle(0);
+    }
+  }, [vibrationCycle]);
+  const setVibrationByStyle = useCallback(() => {
+    if (vibrationStyle === 1) {
+      useVibrationStyle1();
+    }
+    if (vibrationStyle === 2) {
+      useVibrationStyle2();
+    }
+  }, [useVibrationStyle1, useVibrationStyle2, vibrationStyle]);
+
+  const vibrate = useCallback(() => {
+    if (vibrationType === 1) {
+      app?.HapticFeedback?.impactOccurred("soft");
+    } else if (vibrationType === 2) {
+      app?.HapticFeedback?.impactOccurred("heavy");
+    } else if (vibrationType === 3) {
+      app?.HapticFeedback?.impactOccurred("light");
+    } else if (vibrationType === 4) {
+      app?.HapticFeedback?.notificationOccurred("error");
+    } else if (vibrationType === 5) {
+      app?.HapticFeedback?.notificationOccurred("success");
+    }
+  }, [vibrationType, app?.HapticFeedback]);
 
   useEffect(() => {
-    const interv = setInterval(() => {
-      if (touchingRef.current && touchRef.current && game.energy > 0) {
-        // app?.HapticFeedback?.impactOccurred("light");
-        app?.HapticFeedback?.notificationOccurred("error");
-        // app?.HapticFeedback?.impactOccurred("heavy");
-        lastVibrateFrame.current = performance.now();
-      }
-      // app?.HapticFeedback?.selectionChanged();
-    }, 1);
-    return () => clearInterval(interv);
-  }, [app?.HapticFeedback]);
-  const isVibrating =
-    touchingRef.current && touchRef.current && game.energy > 0;
+    if (!isVibrating) return;
+    if (frameTime - lastVibrateFrame.current >= vibrationDelay) {
+      setVibrationByStyle();
+      vibrate();
+      lastVibrateFrame.current = frameTime;
+    }
+  }, [
+    isVibrating,
+    frameTime,
+    vibrationCycle,
+    setVibrationCycle,
+    vibrationType,
+    setVibrationType,
+    app?.HapticFeedback,
+    vibrationDelay,
+    setVibrationByStyle,
+    vibrate,
+  ]);
 
   return (
     <>
-      <div
-        className="absolute left-0 right-0 top-0 bottom-12 z-10 flex flex-col justify-between items-center "
-        onTouchStartCapture={(e) => {
-          touchRef.current = true;
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        onTouchEndCapture={(e) => {
-          touchRef.current = false;
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      >
+      <div className="absolute left-0 right-0 top-0 bottom-12 z-10 flex flex-col items-stretch">
         <div className="w-full flex flex-col justify-start items-center text-white pl-4 pr-4 pt-2">
           <div className="w-full flex-col items-start">
             <div className="sora-bold text-xl ">
@@ -265,7 +245,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
             <div style={{ color: "#C7C7C7" }}>Hold & vibrate with XDAO</div>
           </div>
           <div
-            className="w-full flex-col items-start mt-2 rounded-xl pl-4 pr-4 pt-3 pb-3"
+            className="w-full flex-col items-start mt-2 rounded-xl pl-4 pr-4 pt-3 pb-3 z-40"
             style={{
               background:
                 "linear-gradient(90deg, rgba(38, 38, 38, 255) 0%, rgba(38, 38, 38, 0.5) 100%)",
@@ -299,9 +279,43 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
             <div className="coin-logo"></div>
             <div>{particlesCount} $XDAO</div>
           </div>
+          <div
+            className="ml-auto mr-auto gap-6 border flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl z-40"
+            style={{
+              backgroundColor: "#262626",
+              borderColor: "#2D2D2D",
+              color: "#C7C7C7",
+            }}
+          >
+            <div style={{ color: "#C7C7C7" }}>Vibration Style:</div>
+            <div
+              style={{ color: vibrationStyle === 1 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(1)}
+            >
+              1
+            </div>
+            <div
+              style={{ color: vibrationStyle === 2 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(2)}
+            >
+              2
+            </div>
+          </div>
         </div>
-
-        <div className="w-full flex flex-col justify-end items-center text-white mt-20 mb-6 pl-4 pr-4">
+        <div
+          className="flex-1"
+          onTouchStartCapture={(e) => {
+            touchRef.current = true;
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onTouchEndCapture={(e) => {
+            touchRef.current = false;
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        ></div>
+        <div className="w-full flex flex-col justify-end items-center text-white mb-6 pl-4 pr-4">
           <div
             className="ml-auto mr-auto border mb-4 flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl"
             style={{
@@ -329,7 +343,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
             </svg>
             <div className="ml-1">{energy}</div>
             <div>/</div>
-            <div>{maxEnery}</div>
+            <div>{maxEnergy}</div>
           </div>
           <div
             className="w-full h-4 rounded-lg overflow-hidden relative flex items-center justify-center p-1"
@@ -350,14 +364,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
           </div>
         </div>
       </div>
-      <Canvas
-        // flat
-        color={"#ffffff"}
-        // shadows
-        // dpr={[1, 1.5]}
-        // gl={{ antialias: false }}
-        // camera={{ position: [0, 0, 500], near: 10, far: 1000 }}
-      >
+      <Canvas flat>
         <Renderer isTouching={isVibrating} />
       </Canvas>
     </>

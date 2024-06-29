@@ -10,6 +10,8 @@ import type {
   UserPublic,
   CentrifugoRpc,
   ReferrersResponse,
+  BoostRequest,
+  BoostResponse,
 } from "./models";
 
 export type LoginData = {
@@ -31,6 +33,12 @@ export type CenrifugoData = {
 };
 
 export type ReferrersData = {};
+
+export type BoostsData = {
+  BoostsBoost: {
+    requestBody: BoostRequest;
+  };
+};
 
 export class LoginService {
   /**
@@ -164,6 +172,28 @@ export class ReferrersService {
     return __request(OpenAPI, {
       method: "GET",
       url: "/api/v1/referrers",
+    });
+  }
+}
+
+export class BoostsService {
+  /**
+   * Boost
+   * @returns BoostResponse Successful Response
+   * @throws ApiError
+   */
+  public static boostsBoost(
+    data: BoostsData["BoostsBoost"],
+  ): CancelablePromise<BoostResponse> {
+    const { requestBody } = data;
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/v1/boost",
+      body: requestBody,
+      mediaType: "application/json",
+      errors: {
+        422: `Validation Error`,
+      },
     });
   }
 }
