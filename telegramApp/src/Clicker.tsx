@@ -47,7 +47,7 @@ const ShaderPlane: React.FC<{
   scale?: number;
   isVibrating?: boolean;
   isRef?: boolean;
-}> = observer(() => {
+}> = observer(({ isVibrating }) => {
   const ref = useRef<{ coins: number; time: number }>({ coins: 0, time: 0 });
   const { viewport, size } = useThree();
   const { particlesCount } = state;
@@ -57,7 +57,8 @@ const ShaderPlane: React.FC<{
   }, [particlesCount]);
 
   useFrame((_state, delta) => {
-    ref.current.time += delta;
+    const _delta = delta * (isVibrating ? 1.2 : 0.01);
+    ref.current.time += _delta;
   });
   return (
     <mesh scale={[viewport.width, viewport.height, 1]}>
@@ -481,6 +482,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
               backgroundColor: "#262626",
               borderColor: "#2D2D2D",
               color: "#C7C7C7",
+              opacity: 0.4,
             }}
           >
             <div style={{ color: "#C7C7C7" }}>Vibration:</div>
