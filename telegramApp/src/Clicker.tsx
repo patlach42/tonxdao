@@ -113,6 +113,11 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
     Math.max(0, state.startDelay - touchingDelay),
   );
   const displayTouchingCountDown = Math.round(touchingCountDown / 1000);
+  useEffect(() => {
+    if (displayTouchingCountDown > 0) {
+      app?.HapticFeedback?.impactOccurred("light");
+    }
+  }, [app?.HapticFeedback, displayTouchingCountDown]);
   const isVibrating =
     touchingRef.current && touchRef.current && state.energy > 0 && isStarted;
   const frameTime = useFrameTime();
