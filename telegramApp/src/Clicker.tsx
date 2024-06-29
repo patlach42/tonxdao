@@ -276,36 +276,28 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   }, [vibrationCycle]);
   const useVibrationStyle5 = useCallback(() => {
     if (vibrationCycle === 0) {
-      setVibrationDelay(1000);
+      setVibrationDelay(600);
       setVibrationType("warning");
       setVibrationCycle(1);
     } else if (vibrationCycle === 1) {
-      setVibrationDelay(1000);
+      setVibrationDelay(600);
       setVibrationType("warning");
       setVibrationCycle(2);
     } else if (vibrationCycle === 2) {
-      setVibrationDelay(1000);
+      setVibrationDelay(600);
       setVibrationType("error");
       setVibrationCycle(3);
     } else if (vibrationCycle === 3) {
-      setVibrationDelay(1000);
+      setVibrationDelay(600);
       setVibrationType("error");
       setVibrationCycle(4);
     } else if (vibrationCycle === 4) {
-      setVibrationDelay(1000);
+      setVibrationDelay(600);
       setVibrationType("success");
       setVibrationCycle(5);
     } else if (vibrationCycle === 5) {
-      setVibrationDelay(1000);
+      setVibrationDelay(600);
       setVibrationType("success");
-      setVibrationCycle(6);
-    } else if (vibrationCycle === 6) {
-      setVibrationDelay(1000);
-      setVibrationType("rigid");
-      setVibrationCycle(7);
-    } else if (vibrationCycle === 7) {
-      setVibrationDelay(1000);
-      setVibrationType("medium");
       setVibrationCycle(0);
     }
   }, [vibrationCycle]);
