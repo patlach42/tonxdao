@@ -36,7 +36,7 @@ export const LoadingScreen: React.FC = () => {
       <svg
         style={{
           width: "calc(100vh / 8)",
-          transition: "all 5.5s ease",
+          transition: "all .5s ease",
           opacity: show ? 1 : 0,
         }}
         viewBox="0 0 402 504"
