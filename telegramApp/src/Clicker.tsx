@@ -45,16 +45,16 @@ const useFrameTime = () => {
 const ShaderPlane: React.FC<{
   position?: Vector3;
   scale?: number;
+  coins: number;
   isVibrating?: boolean;
   isRef?: boolean;
-}> = observer(({ isVibrating }) => {
+}> = observer(({ isVibrating, coins }) => {
   const ref = useRef<{ coins: number; time: number }>({ coins: 0, time: 0 });
   const { viewport, size } = useThree();
-  const { particlesCount } = state;
 
   useEffect(() => {
-    ref.current.coins = particlesCount;
-  }, [particlesCount]);
+    ref.current.coins = coins;
+  }, [coins]);
 
   useFrame((_state, delta) => {
     const _delta = delta * (isVibrating ? 1.2 : 0.01);
@@ -73,10 +73,13 @@ const ShaderPlane: React.FC<{
     </mesh>
   );
 });
-const Renderer: React.FC<{ isTouching: boolean }> = ({ isTouching }) => {
+export const Renderer: React.FC<{ isTouching: boolean; coins: number }> = ({
+  isTouching,
+  coins,
+}) => {
   return (
     <>
-      <ShaderPlane isVibrating={isTouching}></ShaderPlane>
+      <ShaderPlane isVibrating={isTouching} coins={coins}></ShaderPlane>
       {/*<EffectComposer>*/}
       {/*<Sepia />*/}
       {/*<Autofocus blur={3} />*/}
@@ -90,6 +93,7 @@ const Renderer: React.FC<{ isTouching: boolean }> = ({ isTouching }) => {
 
 const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   const centrifugo = useCentrifugo();
+  const twa = useWebApp();
   useEffect(() => {
     state.centrifugo = centrifugo || undefined;
   }, [centrifugo]);
@@ -105,6 +109,15 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   const lastCountedFrame = useRef(performance.now());
   const lastEnergyRestoredFrame = useRef(performance.now());
   const app = useWebApp();
+  useEffect(() => {
+    const cb = () => {
+      touchRef.current = false;
+    };
+    twa?.onEvent("viewportChanged", cb);
+    return () => {
+      twa?.offEvent("viewportChanged", cb);
+    };
+  }, [twa]);
 
   const touchingDelay = state?.startedAt
     ? new Date()?.getTime() - state?.startedAt?.getTime()
@@ -113,7 +126,11 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   const touchingCountDown = Math.abs(
     Math.max(0, state.startDelay - touchingDelay),
   );
-  const displayTouchingCountDown = Math.round(touchingCountDown / 1000);
+  let displayTouchingCountDown = Math.ceil(touchingCountDown / 1000);
+  if (!touchRef.current) {
+    displayTouchingCountDown = 0;
+  }
+
   useEffect(() => {
     if (displayTouchingCountDown > 0) {
       app?.HapticFeedback?.impactOccurred("light");
@@ -129,7 +146,6 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
       state.stop();
     } else if (!touchingRef.current && touchRef.current) {
       touchingRef.current = true;
-      app?.HapticFeedback?.impactOccurred("soft");
       state.start();
     } else if (touchingRef.current && touchRef.current && isStarted) {
       // pressing now
@@ -161,7 +177,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
     | "rigid"
     | "medium";
   type VibrationStyle = 1 | 2 | 3 | 4 | 5 | 6;
-  const [vibrationStyle, setVibrationStyle] = useState<VibrationStyle>(2);
+  const [vibrationStyle, setVibrationStyle] = useState<VibrationStyle>(4);
   const [vibrationCycle, setVibrationCycle] = useState<number>(0);
   const [vibrationType, setVibrationType] = useState<VibrationType>("soft");
   const [vibrationDelay, setVibrationDelay] = useState<number>(1000);
@@ -375,7 +391,15 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
     if (vibrationStyle === 6) {
       useVibrationStyle6();
     }
-  }, [useVibrationStyle1, useVibrationStyle2, vibrationStyle]);
+  }, [
+    useVibrationStyle1,
+    useVibrationStyle2,
+    useVibrationStyle3,
+    useVibrationStyle4,
+    useVibrationStyle5,
+    useVibrationStyle6,
+    vibrationStyle,
+  ]);
 
   const vibrate = useCallback(() => {
     if (vibrationType === "soft") {
@@ -421,33 +445,33 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
 
   return (
     <>
-      <div className="absolute left-0 right-0 top-0 bottom-12 z-10 flex flex-col items-stretch">
-        <div className="w-full flex flex-col justify-start items-center text-white pl-4 pr-4 pt-2">
-          <div className="w-full flex-col items-start">
-            <div className="sora-bold text-xl ">
-              Hello, {state?.profile?.full_name}
-            </div>
-            <div style={{ color: "#C7C7C7" }}>Hold & vibrate with XDAO</div>
-          </div>
+      <div className="absolute left-0 right-0 top-0 bottom-16 z-10 flex flex-col items-stretch">
+        <div className="w-full flex flex-col justify-start items-center text-white pl-6 pr-6 pt-2">
           <div
-            className="w-full flex-col items-start mt-2 rounded-xl pl-4 pr-4 pt-3 pb-3 z-40"
+            className="w-full flex-col items-start rounded-xl pl-4 pr-4 pt-3 pb-3 z-40"
             style={{
               background:
                 "linear-gradient(90deg, rgba(38, 38, 38, 255) 0%, rgba(38, 38, 38, 0.5) 100%)",
             }}
           >
-            <div style={{ color: "#B9B2C4" }} className="text-base">
-              Your progress
+            <div className="w-full flex flex-row justify-between items-center">
+              <div style={{ color: "#B9B2C4" }} className="text-base">
+                Your progress
+              </div>
+              <div className="flex flex-row text-white font-bold text-base gap-2 sora-bold items-center">
+                <div className="coin-logo"></div>
+                <div>{particlesCount} $XDAO</div>
+              </div>
             </div>
             <div
-              className="w-full h-1.5 bg-blue-300 rounded-2xl relative mt-1 mb-1 overflow-hidden border-2"
+              className="w-full h-2 bg-blue-300 rounded-2xl relative mt-1 mb-1 overflow-hidden border box-content"
               style={{ backgroundColor: "#171717", borderColor: "#171717" }}
             >
               <div
                 className="h-full top-0 left-0 right-0 rounded-2xl"
                 style={{
                   width: `${levelPercent}%`,
-                  background: "#AD00FF",
+                  background: "#4200FF",
                 }}
               ></div>
             </div>
@@ -460,69 +484,53 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
               <div>Level {`${state.nextLevel}`}</div>
             </div>
           </div>
-          <div className="bg-opacity-35 flex flex-row text-white mt-2 font-bold text-2xl gap-2 sora-bold items-center">
-            <div className="coin-logo"></div>
-            <div>{particlesCount} $XDAO</div>
-          </div>
-          {state?.startedAt && displayTouchingCountDown > 0 ? (
-            <div
-              className="ml-auto mr-auto gap-6 border flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl z-40"
-              style={{
-                backgroundColor: "#262626",
-                borderColor: "#2D2D2D",
-                color: "#C7C7C7",
-              }}
-            >
-              <div style={{ color: "#C7C7C7" }}>{displayTouchingCountDown}</div>
-            </div>
-          ) : null}
-          <div
-            className="ml-auto mr-auto gap-6 border flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl z-40"
-            style={{
-              backgroundColor: "#262626",
-              borderColor: "#2D2D2D",
-              color: "#C7C7C7",
-              opacity: 0.4,
-            }}
-          >
-            <div style={{ color: "#C7C7C7" }}>Vibration:</div>
-            <div
-              style={{ color: vibrationStyle === 1 ? "#AD00FF" : "#C7C7C7" }}
-              onClick={() => setVibrationStyle(1)}
-            >
-              1
-            </div>
-            <div
-              style={{ color: vibrationStyle === 2 ? "#AD00FF" : "#C7C7C7" }}
-              onClick={() => setVibrationStyle(2)}
-            >
-              2
-            </div>
-            <div
-              style={{ color: vibrationStyle === 3 ? "#AD00FF" : "#C7C7C7" }}
-              onClick={() => setVibrationStyle(3)}
-            >
-              3
-            </div>
-            <div
-              style={{ color: vibrationStyle === 4 ? "#AD00FF" : "#C7C7C7" }}
-              onClick={() => setVibrationStyle(4)}
-            >
-              4
-            </div>
-            <div
-              style={{ color: vibrationStyle === 5 ? "#AD00FF" : "#C7C7C7" }}
-              onClick={() => setVibrationStyle(5)}
-            >
-              5
-            </div>
-            <div
-              style={{ color: vibrationStyle === 6 ? "#AD00FF" : "#C7C7C7" }}
-              onClick={() => setVibrationStyle(6)}
-            >
-              6
-            </div>
-          </div>
+          {/*<div*/}
+          {/*  className="ml-auto mr-auto gap-6 border flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl z-40"*/}
+          {/*  style={{*/}
+          {/*    backgroundColor: "#262626",*/}
+          {/*    borderColor: "#2D2D2D",*/}
+          {/*    color: "#C7C7C7",*/}
+          {/*    opacity: 0.4,*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  <div style={{ color: "#C7C7C7" }}>Vibration:</div>*/}
+          {/*  <div*/}
+          {/*    style={{ color: vibrationStyle === 1 ? "#AD00FF" : "#C7C7C7" }}*/}
+          {/*    onClick={() => setVibrationStyle(1)}*/}
+          {/*  >*/}
+          {/*    1*/}
+          {/*  </div>*/}
+          {/*  <div*/}
+          {/*    style={{ color: vibrationStyle === 2 ? "#AD00FF" : "#C7C7C7" }}*/}
+          {/*    onClick={() => setVibrationStyle(2)}*/}
+          {/*  >*/}
+          {/*    2*/}
+          {/*  </div>*/}
+          {/*  <div*/}
+          {/*    style={{ color: vibrationStyle === 3 ? "#AD00FF" : "#C7C7C7" }}*/}
+          {/*    onClick={() => setVibrationStyle(3)}*/}
+          {/*  >*/}
+          {/*    3*/}
+          {/*  </div>*/}
+          {/*  <div*/}
+          {/*    style={{ color: vibrationStyle === 4 ? "#AD00FF" : "#C7C7C7" }}*/}
+          {/*    onClick={() => setVibrationStyle(4)}*/}
+          {/*  >*/}
+          {/*    4*/}
+          {/*  </div>*/}
+          {/*  <div*/}
+          {/*    style={{ color: vibrationStyle === 5 ? "#AD00FF" : "#C7C7C7" }}*/}
+          {/*    onClick={() => setVibrationStyle(5)}*/}
+          {/*  >*/}
+          {/*    5*/}
+          {/*  </div>*/}
+          {/*  <div*/}
+          {/*    style={{ color: vibrationStyle === 6 ? "#AD00FF" : "#C7C7C7" }}*/}
+          {/*    onClick={() => setVibrationStyle(6)}*/}
+          {/*  >*/}
+          {/*    6*/}
+          {/*  </div>*/}
+          {/*</div>*/}
         </div>
         <div
           className="flex-1"
@@ -537,7 +545,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
             e.stopPropagation();
           }}
         ></div>
-        <div className="w-full flex flex-col justify-end items-center text-white mb-6 pl-4 pr-4">
+        <div className="w-full flex flex-col justify-end items-center text-white mb-5 pl-6 pr-6">
           <div
             className="ml-auto mr-auto border mb-4 flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl"
             style={{
@@ -585,9 +593,23 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
             {/*<div className="text-white text-center z-20">{energy}</div>*/}
           </div>
         </div>
+        <div className="h-6"></div>
       </div>
+
+      {state?.startedAt && touchingCountDown > 0 ? (
+        <div
+          className="absolute left-0 right-0 top-0 bottom-12 z-10 flex flex-col items-center justify-center transition-opacity duration-75 "
+          style={{
+            color: "#C7C7C7",
+          }}
+        >
+          <div className="sora-bold text-2xl" style={{ color: "#C7C7C7" }}>
+            {displayTouchingCountDown}
+          </div>
+        </div>
+      ) : null}
       <Canvas flat>
-        <Renderer isTouching={isVibrating} />
+        <Renderer isTouching={isVibrating} coins={state.particlesCount} />
       </Canvas>
     </>
   );

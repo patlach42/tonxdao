@@ -1,9 +1,11 @@
 import "./App.css";
+import "./index.css";
 import { ClickerApp } from "./Clicker.tsx";
 import { useWebApp } from "./TelegramAppProvider.tsx";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AppLayout } from "./AppLayout.tsx";
+import { ShaderTest } from "./ShaderTest.tsx";
 import { LoginService } from "./client";
 import { state } from "./state.tsx";
 import { observer } from "mobx-react-lite";
@@ -12,8 +14,9 @@ import { Referrals } from "./Referrals.tsx";
 import { Boosts } from "./Boosts.tsx";
 import { Stats } from "./Stats.tsx";
 import { Tasks } from "./Tasks.tsx";
+import { LoadingScreen } from "./LoadingScreen.tsx";
 
-const App = observer(() => {
+export const App = observer(() => {
   const twa = useWebApp();
   const accessToken = useRef(localStorage.getItem("access_token"));
   useEffect(() => {
@@ -68,8 +71,17 @@ const App = observer(() => {
       ],
     },
   ]);
-  // return <RouterProvider router={testRouter} />;
-  return state.profile ? <RouterProvider router={router} /> : null;
+  const noTelegramRouter = createBrowserRouter([
+    {
+      path: "/shaderTest/",
+      element: <ShaderTest />,
+      children: [],
+    },
+  ]);
+  return state.profile ? (
+    <RouterProvider router={router} />
+  ) : !twa?.initData ? (
+    <RouterProvider router={noTelegramRouter} />
+  ) : null;
   // <RouterProvider router={testRouter} />
 });
-export default App;

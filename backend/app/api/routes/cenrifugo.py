@@ -52,6 +52,7 @@ async def pub(session: SessionDep, redis: RedisDep, data: dict) -> dict:
     if result_energy < -1:
         return {}
 
+    # await redis.hset(f"user:{user_id}", "coins", 0)
     await redis.hincrby(f"user:{user_id}", "coins", 1)
     await redis.hset(f"user:{user_id}", "last_energy_change", time.time())
     await redis.hset(f"user:{user_id}", "energy", result_energy - 1)

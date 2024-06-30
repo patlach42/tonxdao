@@ -10,8 +10,7 @@ class State {
   energyPerSecond = 1;
   coinsPerSecond = 20;
   levels = [
-    1000, 2000, 4000, 8000, 16000, 32000, 64000, 100000, 256000, 1000000,
-    10000000,
+    1000, 2000, 4000, 8000, 10000, 15000, 20000, 25000, 40000, 100000, 1000000,
   ];
   startedAt?: Date;
   startDelay = 3000;
@@ -103,7 +102,7 @@ class State {
   }
 
   get nextLevelScore() {
-    return this.levels[this.nextLevel - 1];
+    return this.levels[this.currentLevel - 1];
   }
 }
 
