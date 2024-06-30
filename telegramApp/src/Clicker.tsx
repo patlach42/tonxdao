@@ -91,7 +91,7 @@ export const Renderer: React.FC<{ isTouching: boolean; coins: number }> = ({
   );
 };
 
-const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
+const ClickerApp: React.FC<PropsWithChildren> = observer(() => {
   const centrifugo = useCentrifugo();
   const twa = useWebApp();
   useEffect(() => {
@@ -448,7 +448,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
       <div className="absolute left-0 right-0 top-0 bottom-16 z-10 flex flex-col items-stretch">
         <div className="w-full flex flex-col justify-start items-center text-white pl-6 pr-6 pt-2">
           <div
-            className="w-full flex-col items-start rounded-xl pl-4 pr-4 pt-3 pb-3 z-40"
+            className="w-full flex-col items-start rounded-xl pl-4 pr-4 pt-4 pb-4 z-40"
             style={{
               background:
                 "linear-gradient(90deg, rgba(38, 38, 38, 255) 0%, rgba(38, 38, 38, 0.5) 100%)",
@@ -456,7 +456,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
           >
             <div className="w-full flex flex-row justify-between items-center">
               <div style={{ color: "#B9B2C4" }} className="text-base">
-                Your progress
+                Your progress:
               </div>
               <div className="flex flex-row text-white font-bold text-base gap-2 sora-bold items-center">
                 <div className="coin-logo"></div>
@@ -464,7 +464,7 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
               </div>
             </div>
             <div
-              className="w-full h-2 bg-blue-300 rounded-2xl relative mt-1 mb-1 overflow-hidden border box-content"
+              className="w-full h-2 bg-blue-300 rounded-2xl relative mt-2 mb-2 overflow-hidden border box-content"
               style={{ backgroundColor: "#171717", borderColor: "#171717" }}
             >
               <div
@@ -545,9 +545,9 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
             e.stopPropagation();
           }}
         ></div>
-        <div className="w-full flex flex-col justify-end items-center text-white mb-5 pl-6 pr-6">
+        <div className="w-full flex flex-col justify-end items-center text-white text-xl mb-5 pl-6 pr-6">
           <div
-            className="ml-auto mr-auto border mb-4 flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl"
+            className="ml-auto mr-auto border mb-5 flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl"
             style={{
               backgroundColor: "#262626",
               borderColor: "#2D2D2D",
@@ -571,12 +571,12 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
                 fill="currentColor"
               />
             </svg>
-            <div className="ml-1">{energy}</div>
+            <div className="ml-2">{energy}</div>
             <div>/</div>
             <div>{maxEnergy}</div>
           </div>
           <div
-            className="w-full h-4 rounded-lg overflow-hidden relative flex items-center justify-center p-1"
+            className="w-full h-3 rounded-md overflow-hidden relative flex border-2 items-center justify-center box-content"
             style={{ backgroundColor: "#1B1B1B", borderColor: "#1B1B1B" }}
           >
             <div className="overflow-hidden relative flex flex-1 w-full h-full">
@@ -585,9 +585,9 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
                   width: `${energyPercent}%`,
                   height: "100%",
                   background:
-                    "linear-gradient(90deg, #1400FF 0%, #AD00FF 100%)",
+                    "linear-gradient(90deg, #783CDA 0%, #A3D0F9 100%)",
                 }}
-                className="bg-blue-300 absolute left-0 top-0 bottom-0 rounded-xl"
+                className="bg-blue-300 absolute left-0 top-0 bottom-0 rounded-md"
               ></div>
             </div>
             {/*<div className="text-white text-center z-20">{energy}</div>*/}
@@ -615,12 +615,4 @@ const ClickerScreen: React.FC<PropsWithChildren> = observer(() => {
   );
 });
 
-const ClickerApp = observer(() => {
-  return (
-    <>
-      <ClickerScreen></ClickerScreen>
-    </>
-  );
-});
-
-export { ClickerApp, ClickerScreen };
+export { ClickerApp };

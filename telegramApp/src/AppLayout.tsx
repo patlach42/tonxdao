@@ -24,7 +24,7 @@ export function AppLayout() {
           className={`flex flex-row justify-around items-stretch p-1 h-16 absolute bottom-6 left-6 right-6 z-40 border rounded-xl poppins-semi-bold`}
           style={{
             backgroundColor: "#141414",
-            borderColor: "#1B1B1B",
+            borderColor: "#2D2D2D",
             color: "#818181",
           }}
         >
@@ -32,7 +32,7 @@ export function AppLayout() {
             to="/"
             className={({ isActive }) =>
               [
-                "flex flex-col flex-1 items-center justify-center gap-2 rounded-lg p-1",
+                "flex flex-col flex-1 items-center justify-end gap-2 rounded-lg p-2",
                 isActive ? "active-nav-tab" : "",
               ].join(" ")
             }
@@ -54,13 +54,15 @@ export function AppLayout() {
                 fill="currentColor"
               />
             </svg>
-            <span className={"text-xs"}>Vibrate</span>
+            <span style={{ fontSize: "0.625rem", lineHeight: "0.75rem" }}>
+              Vibrate
+            </span>
           </NavLink>
           <NavLink
             to="/referrals"
             className={({ isActive }) =>
               [
-                "flex flex-1 flex-col items-center justify-center gap-2 rounded-lg p-1",
+                "flex flex-1 flex-col items-center justify-end gap-2 rounded-lg p-2",
                 isActive ? "active-nav-tab" : "",
               ].join(" ")
             }
@@ -82,13 +84,15 @@ export function AppLayout() {
                 fill="currentColor"
               />
             </svg>
-            <span className={"text-xs"}>Invite</span>
+            <span style={{ fontSize: "0.625rem", lineHeight: "0.75rem" }}>
+              Invite
+            </span>
           </NavLink>
           <NavLink
             to="/tasks"
             className={({ isActive }) =>
               [
-                "flex flex-col flex-1 items-center justify-center gap-2 rounded-lg p-1",
+                "flex flex-col flex-1 items-center justify-end gap-2 rounded-lg p-2",
                 isActive ? "active-nav-tab" : "",
               ].join(" ")
             }
@@ -111,13 +115,15 @@ export function AppLayout() {
               />
             </svg>
 
-            <span className={"text-xs"}>Tasks</span>
+            <span style={{ fontSize: "0.625rem", lineHeight: "0.75rem" }}>
+              Tasks
+            </span>
           </NavLink>
           <NavLink
             to="/boosts"
             className={({ isActive }) =>
               [
-                "flex flex-col flex-1 items-center justify-center gap-2 rounded-lg p-1",
+                "flex flex-col flex-1 items-center justify-end gap-2 rounded-lg p-2",
                 isActive ? "active-nav-tab" : "",
               ].join(" ")
             }
@@ -140,7 +146,9 @@ export function AppLayout() {
               />
             </svg>
 
-            <span className={"text-xs"}>Boosts</span>
+            <span style={{ fontSize: "0.625rem", lineHeight: "0.75rem" }}>
+              Boosts
+            </span>
           </NavLink>
         </nav>
       </div>
