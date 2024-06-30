@@ -3,14 +3,14 @@ import { useWebApp } from "./TelegramAppProvider.tsx";
 
 export const LoadingScreen: React.FC = () => {
   const twa = useWebApp();
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(true);
   useEffect(() => {
     twa?.ready();
     twa?.expand();
-    setTimeout(() => {
-      setShow(true);
-    }, 100);
-  }, []);
+    // setTimeout(() => {
+    //   setShow(true);
+    // }, 100);
+  }, [twa]);
   useEffect(() => {
     if (show) {
     }
