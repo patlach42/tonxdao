@@ -2,7 +2,8 @@ import "./App.css";
 import { NavLink } from "react-router-dom";
 import { Canvas } from "@react-three/fiber";
 import React from "react";
-import { Renderer } from "./Clicker.tsx";
+
+import { Renderer } from "./MainRenderer.tsx";
 
 export function ShaderTest() {
   return (

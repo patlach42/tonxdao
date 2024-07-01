@@ -51,6 +51,8 @@ class UserPublic(UserBase):
     id: int
     energy: float
     last_energy_change: float
+    referral_link: str
+    level_caps: list[int]
 
 
 class UsersPublic(SQLModel):

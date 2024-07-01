@@ -63,6 +63,8 @@ export type UserPublic = {
   id: number;
   energy: number;
   last_energy_change: number;
+  referral_link: string;
+  level_caps: Array<number>;
 };
 
 export type ValidationError = {

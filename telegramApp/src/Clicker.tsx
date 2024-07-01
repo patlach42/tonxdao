@@ -1,95 +1,14 @@
-import React, {
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { useCentrifugo } from "./Centrifugo.tsx";
-import { Vector3 } from "three";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { WaveMaterial } from "./Material";
+import { Canvas } from "@react-three/fiber";
 import { observer } from "mobx-react-lite";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { state } from "./state.tsx";
 import { useWebApp } from "./TelegramAppProvider.tsx";
-// import {
-//   Glitch,
-//   EffectComposer,
-//   Autofocus,
-//   Depth,
-//   DepthOfField,
-//   DotScreen,
-//   HueSaturation,
-//   Sepia,
-//   ASCII,
-// } from "@react-three/postprocessing";
-
-const useFrameTime = () => {
-  const [frameTime, setFrameTime] = useState(performance.now());
-  useEffect(() => {
-    let frameId: number;
-    const frame = (time: number) => {
-      setFrameTime(time);
-      frameId = requestAnimationFrame(frame);
-    };
-    requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(frameId);
-  }, []);
-  return frameTime;
-};
-
-const ShaderPlane: React.FC<{
-  position?: Vector3;
-  scale?: number;
-  coins: number;
-  isVibrating?: boolean;
-  isRef?: boolean;
-}> = observer(({ isVibrating, coins }) => {
-  const ref = useRef<{ coins: number; time: number }>({ coins: 0, time: 0 });
-  const { viewport, size } = useThree();
-
-  useEffect(() => {
-    ref.current.coins = coins;
-  }, [coins]);
-
-  useFrame((_state, delta) => {
-    const _delta = delta * (isVibrating ? 1.2 : 0.01);
-    ref.current.time += _delta;
-  });
-  return (
-    <mesh scale={[viewport.width, viewport.height, 1]}>
-      <planeGeometry />
-      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-      {/* @ts-ignore */}
-      <waveMaterial
-        ref={ref}
-        key={WaveMaterial.key}
-        resolution={[size.width * viewport.dpr, size.height * viewport.dpr]}
-      />
-    </mesh>
-  );
-});
-export const Renderer: React.FC<{ isTouching: boolean; coins: number }> = ({
-  isTouching,
-  coins,
-}) => {
-  return (
-    <>
-      <ShaderPlane isVibrating={isTouching} coins={coins}></ShaderPlane>
-      {/*<EffectComposer>*/}
-      {/*<Sepia />*/}
-      {/*<Autofocus blur={3} />*/}
-      {/*<ASCII />*/}
-      {/*<DepthOfField />*/}
-      {/*<DotScreen />*/}
-      {/*</EffectComposer>*/}
-    </>
-  );
-};
+import { NewDaoModal } from "./modal/NewDao.tsx";
+import { Renderer, useFrameTime } from "./MainRenderer.tsx";
+import { useVibration } from "./useVibration.tsx";
 
 const ClickerApp: React.FC<PropsWithChildren> = observer(() => {
   const centrifugo = useCentrifugo();
@@ -98,14 +17,23 @@ const ClickerApp: React.FC<PropsWithChildren> = observer(() => {
     state.centrifugo = centrifugo || undefined;
   }, [centrifugo]);
 
-  const { particlesCount, energy, maxEnergy, coinsPerSecond, nextLevelScore } =
-    state;
+  const {
+    particlesCount,
+    energy,
+    maxEnergy,
+    coinsPerSecond,
+    nextLevelScore,
+    currentLevel,
+  } = state;
 
   const touchRef = useRef(false);
   const touchingRef = useRef(false);
 
   const energyPercent = (energy / maxEnergy) * 100;
-  const levelPercent = (particlesCount / nextLevelScore) * 100;
+  const prevLevelScore = state?.levels?.[currentLevel - 2] || 0;
+  const levelPercent =
+    ((particlesCount - prevLevelScore) / (nextLevelScore - prevLevelScore)) *
+    100;
   const lastCountedFrame = useRef(performance.now());
   const lastEnergyRestoredFrame = useRef(performance.now());
   const app = useWebApp();
@@ -165,264 +93,18 @@ const ClickerApp: React.FC<PropsWithChildren> = observer(() => {
     }
   }, [app?.HapticFeedback, centrifugo, coinsPerSecond, frameTime, isStarted]);
 
-  const lastVibrateFrame = useRef(performance.now());
-  type VibrationType =
-    | "soft"
-    | "heavy"
-    | "light"
-    | "error"
-    | "success"
-    | "warning"
-    | "selection"
-    | "rigid"
-    | "medium";
-  type VibrationStyle = 1 | 2 | 3 | 4 | 5 | 6;
-  const [vibrationStyle, setVibrationStyle] = useState<VibrationStyle>(4);
-  const [vibrationCycle, setVibrationCycle] = useState<number>(0);
-  const [vibrationType, setVibrationType] = useState<VibrationType>("soft");
-  const [vibrationDelay, setVibrationDelay] = useState<number>(1000);
-
-  const useVibrationStyle1 = useCallback(() => {
-    if (vibrationCycle === 0) {
-      setVibrationDelay(170);
-      setVibrationType("soft");
-      setVibrationCycle(1);
-    } else if (vibrationCycle === 1) {
-      setVibrationDelay(500);
-      setVibrationType("heavy");
-      setVibrationCycle(2);
-    } else if (vibrationCycle === 2) {
-      setVibrationDelay(170);
-      setVibrationType("soft");
-      setVibrationCycle(3);
-    } else if (vibrationCycle === 3) {
-      setVibrationDelay(500);
-      setVibrationType("heavy");
-      setVibrationCycle(4);
-    } else if (vibrationCycle === 4) {
-      setVibrationDelay(170);
-      setVibrationType("soft");
-      setVibrationCycle(5);
-    } else if (vibrationCycle === 5) {
-      setVibrationDelay(500);
-      setVibrationType("heavy");
-      setVibrationCycle(0);
-    }
-  }, [vibrationCycle]);
-  const useVibrationStyle2 = useCallback(() => {
-    if (vibrationCycle === 0) {
-      setVibrationDelay(430);
-      setVibrationType("heavy");
-      setVibrationCycle(1);
-    } else if (vibrationCycle === 1) {
-      setVibrationDelay(430);
-      setVibrationType("heavy");
-      setVibrationCycle(2);
-    } else if (vibrationCycle === 2) {
-      setVibrationDelay(430);
-      setVibrationType("heavy");
-      setVibrationCycle(3);
-    } else if (vibrationCycle === 3) {
-      setVibrationDelay(430);
-      setVibrationType("heavy");
-      setVibrationCycle(4);
-    } else if (vibrationCycle === 4) {
-      setVibrationDelay(430);
-      setVibrationType("heavy");
-      setVibrationCycle(5);
-    } else if (vibrationCycle === 5) {
-      setVibrationDelay(430);
-      setVibrationType("heavy");
-      setVibrationCycle(6);
-    } else if (vibrationCycle === 6) {
-      setVibrationDelay(430);
-      setVibrationType("heavy");
-      setVibrationCycle(7);
-    } else if (vibrationCycle === 7) {
-      setVibrationDelay(430);
-      setVibrationType("heavy");
-      setVibrationCycle(0);
-    }
-  }, [vibrationCycle]);
-  const useVibrationStyle3 = useCallback(() => {
-    if (vibrationCycle === 0) {
-      setVibrationDelay(215);
-      setVibrationType("heavy");
-      setVibrationCycle(1);
-    } else if (vibrationCycle === 1) {
-      setVibrationDelay(215);
-      setVibrationType("selection");
-      setVibrationCycle(2);
-    } else if (vibrationCycle === 2) {
-      setVibrationDelay(215);
-      setVibrationType("heavy");
-      setVibrationCycle(3);
-    } else if (vibrationCycle === 3) {
-      setVibrationDelay(215);
-      setVibrationType("selection");
-      setVibrationCycle(4);
-    } else if (vibrationCycle === 4) {
-      setVibrationDelay(215);
-      setVibrationType("heavy");
-      setVibrationCycle(5);
-    } else if (vibrationCycle === 5) {
-      setVibrationDelay(215);
-      setVibrationType("selection");
-      setVibrationCycle(6);
-    } else if (vibrationCycle === 6) {
-      setVibrationDelay(215);
-      setVibrationType("heavy");
-      setVibrationCycle(7);
-    } else if (vibrationCycle === 7) {
-      setVibrationDelay(215);
-      setVibrationType("selection");
-      setVibrationCycle(0);
-    }
-  }, [vibrationCycle]);
-  const useVibrationStyle4 = useCallback(() => {
-    if (vibrationCycle === 0) {
-      setVibrationDelay(215);
-      setVibrationType("heavy");
-      setVibrationCycle(1);
-    } else if (vibrationCycle === 1) {
-      setVibrationDelay(215);
-      setVibrationType("selection");
-      setVibrationCycle(2);
-    } else if (vibrationCycle === 2) {
-      setVibrationDelay(215);
-      setVibrationType("selection");
-      setVibrationCycle(3);
-    } else if (vibrationCycle === 3) {
-      setVibrationDelay(215);
-      setVibrationType("heavy");
-      setVibrationCycle(4);
-    } else if (vibrationCycle === 4) {
-      setVibrationDelay(215);
-      setVibrationType("selection");
-      setVibrationCycle(5);
-    } else if (vibrationCycle === 5) {
-      setVibrationDelay(215);
-      setVibrationType("selection");
-      setVibrationCycle(6);
-    } else if (vibrationCycle === 6) {
-      setVibrationDelay(215);
-      setVibrationType("heavy");
-      setVibrationCycle(0);
-    }
-  }, [vibrationCycle]);
-  const useVibrationStyle5 = useCallback(() => {
-    if (vibrationCycle === 0) {
-      setVibrationDelay(100);
-      setVibrationType("warning");
-      setVibrationCycle(1);
-    } else if (vibrationCycle === 1) {
-      setVibrationDelay(70);
-      setVibrationType("selection");
-      setVibrationCycle(2);
-    } else if (vibrationCycle === 2) {
-      setVibrationDelay(70);
-      setVibrationType("selection");
-      setVibrationCycle(3);
-    } else if (vibrationCycle === 3) {
-      setVibrationDelay(70);
-      setVibrationType("selection");
-      setVibrationCycle(4);
-    } else if (vibrationCycle === 4) {
-      setVibrationDelay(70);
-      setVibrationType("selection");
-      setVibrationCycle(5);
-    } else if (vibrationCycle === 5) {
-      setVibrationDelay(70);
-      setVibrationType("selection");
-      setVibrationCycle(0);
-    }
-  }, [vibrationCycle]);
-  const useVibrationStyle6 = useCallback(() => {
-    if (vibrationCycle === 0) {
-      setVibrationDelay(176);
-      setVibrationType("rigid");
-      setVibrationCycle(1);
-    } else if (vibrationCycle === 1) {
-      setVibrationDelay(176);
-      setVibrationType("selection");
-      setVibrationCycle(2);
-    } else if (vibrationCycle === 2) {
-      setVibrationDelay(176);
-      setVibrationType("warning");
-      setVibrationCycle(3);
-    } else if (vibrationCycle === 3) {
-      setVibrationDelay(176);
-      setVibrationType("selection");
-      setVibrationCycle(4);
-    } else if (vibrationCycle === 4) {
-      setVibrationDelay(176);
-      setVibrationType("selection");
-      setVibrationCycle(5);
-    } else if (vibrationCycle === 5) {
-      setVibrationDelay(176);
-      setVibrationType("rigid");
-      setVibrationCycle(6);
-    } else if (vibrationCycle === 6) {
-      setVibrationDelay(176);
-      setVibrationType("warning");
-      setVibrationCycle(7);
-    } else if (vibrationCycle === 7) {
-      setVibrationDelay(176);
-      setVibrationType("selection");
-      setVibrationCycle(0);
-    }
-  }, [vibrationCycle]);
-  const setVibrationByStyle = useCallback(() => {
-    if (vibrationStyle === 1) {
-      useVibrationStyle1();
-    }
-    if (vibrationStyle === 2) {
-      useVibrationStyle2();
-    }
-    if (vibrationStyle === 3) {
-      useVibrationStyle3();
-    }
-    if (vibrationStyle === 4) {
-      useVibrationStyle4();
-    }
-    if (vibrationStyle === 5) {
-      useVibrationStyle5();
-    }
-    if (vibrationStyle === 6) {
-      useVibrationStyle6();
-    }
-  }, [
-    useVibrationStyle1,
-    useVibrationStyle2,
-    useVibrationStyle3,
-    useVibrationStyle4,
-    useVibrationStyle5,
-    useVibrationStyle6,
+  const {
+    vibrationCycle,
+    setVibrationCycle,
+    vibrationType,
+    setVibrationType,
+    vibrationDelay,
+    setVibrationByStyle,
+    vibrate,
     vibrationStyle,
-  ]);
-
-  const vibrate = useCallback(() => {
-    if (vibrationType === "soft") {
-      app?.HapticFeedback?.impactOccurred("soft");
-    } else if (vibrationType === "heavy") {
-      app?.HapticFeedback?.impactOccurred("heavy");
-    } else if (vibrationType === "light") {
-      app?.HapticFeedback?.impactOccurred("light");
-    } else if (vibrationType === "medium") {
-      app?.HapticFeedback?.impactOccurred("medium");
-    } else if (vibrationType === "rigid") {
-      app?.HapticFeedback?.impactOccurred("rigid");
-    } else if (vibrationType === "error") {
-      app?.HapticFeedback?.notificationOccurred("error");
-    } else if (vibrationType === "success") {
-      app?.HapticFeedback?.notificationOccurred("success");
-    } else if (vibrationType === "warning") {
-      app?.HapticFeedback?.notificationOccurred("warning");
-    } else if (vibrationType === "selection") {
-      app?.HapticFeedback?.selectionChanged();
-    }
-  }, [vibrationType, app?.HapticFeedback]);
-
+    setVibrationStyle,
+  } = useVibration();
+  const lastVibrateFrame = useRef(performance.now());
   useEffect(() => {
     if (!isVibrating) return;
     if (frameTime - lastVibrateFrame.current >= vibrationDelay) {
@@ -443,8 +125,18 @@ const ClickerApp: React.FC<PropsWithChildren> = observer(() => {
     vibrate,
   ]);
 
+  const [modalShow, setModalShow] = useState<"level_2" | "dao_settings" | null>(
+    null,
+  );
+  useEffect(() => {
+    // if (currentLevel > 1 && !state.profile?.dao_id) {
+    // setModalShow("level_2");
+    setModalShow(null);
+    // }
+  }, [currentLevel]);
   return (
     <>
+      {modalShow ? <NewDaoModal /> : null}
       <div className="absolute left-0 right-0 top-0 bottom-16 z-10 flex flex-col items-stretch">
         <div className="w-full flex flex-col justify-start items-center text-white pl-6 pr-6 pt-2">
           <div
@@ -484,53 +176,53 @@ const ClickerApp: React.FC<PropsWithChildren> = observer(() => {
               <div>Level {`${state.nextLevel}`}</div>
             </div>
           </div>
-          {/*<div*/}
-          {/*  className="ml-auto mr-auto gap-6 border flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl z-40"*/}
-          {/*  style={{*/}
-          {/*    backgroundColor: "#262626",*/}
-          {/*    borderColor: "#2D2D2D",*/}
-          {/*    color: "#C7C7C7",*/}
-          {/*    opacity: 0.4,*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*  <div style={{ color: "#C7C7C7" }}>Vibration:</div>*/}
-          {/*  <div*/}
-          {/*    style={{ color: vibrationStyle === 1 ? "#AD00FF" : "#C7C7C7" }}*/}
-          {/*    onClick={() => setVibrationStyle(1)}*/}
-          {/*  >*/}
-          {/*    1*/}
-          {/*  </div>*/}
-          {/*  <div*/}
-          {/*    style={{ color: vibrationStyle === 2 ? "#AD00FF" : "#C7C7C7" }}*/}
-          {/*    onClick={() => setVibrationStyle(2)}*/}
-          {/*  >*/}
-          {/*    2*/}
-          {/*  </div>*/}
-          {/*  <div*/}
-          {/*    style={{ color: vibrationStyle === 3 ? "#AD00FF" : "#C7C7C7" }}*/}
-          {/*    onClick={() => setVibrationStyle(3)}*/}
-          {/*  >*/}
-          {/*    3*/}
-          {/*  </div>*/}
-          {/*  <div*/}
-          {/*    style={{ color: vibrationStyle === 4 ? "#AD00FF" : "#C7C7C7" }}*/}
-          {/*    onClick={() => setVibrationStyle(4)}*/}
-          {/*  >*/}
-          {/*    4*/}
-          {/*  </div>*/}
-          {/*  <div*/}
-          {/*    style={{ color: vibrationStyle === 5 ? "#AD00FF" : "#C7C7C7" }}*/}
-          {/*    onClick={() => setVibrationStyle(5)}*/}
-          {/*  >*/}
-          {/*    5*/}
-          {/*  </div>*/}
-          {/*  <div*/}
-          {/*    style={{ color: vibrationStyle === 6 ? "#AD00FF" : "#C7C7C7" }}*/}
-          {/*    onClick={() => setVibrationStyle(6)}*/}
-          {/*  >*/}
-          {/*    6*/}
-          {/*  </div>*/}
-          {/*</div>*/}
+          <div
+            className="ml-auto mr-auto gap-6 border flex flex-row items-center justify-center sora-bold pl-4 pr-4 pt-2 pb-2 rounded-xl z-40"
+            style={{
+              backgroundColor: "#262626",
+              borderColor: "#2D2D2D",
+              color: "#C7C7C7",
+              opacity: 0.4,
+            }}
+          >
+            <div style={{ color: "#C7C7C7" }}>Vibration:</div>
+            <div
+              style={{ color: vibrationStyle === 1 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(1)}
+            >
+              1
+            </div>
+            <div
+              style={{ color: vibrationStyle === 2 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(2)}
+            >
+              2
+            </div>
+            <div
+              style={{ color: vibrationStyle === 3 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(3)}
+            >
+              3
+            </div>
+            <div
+              style={{ color: vibrationStyle === 4 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(4)}
+            >
+              4
+            </div>
+            <div
+              style={{ color: vibrationStyle === 5 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(5)}
+            >
+              5
+            </div>
+            <div
+              style={{ color: vibrationStyle === 6 ? "#AD00FF" : "#C7C7C7" }}
+              onClick={() => setVibrationStyle(6)}
+            >
+              6
+            </div>
+          </div>
         </div>
         <div
           className="flex-1"

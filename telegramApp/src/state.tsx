@@ -9,11 +9,9 @@ class State {
   maxEnergy = 6000;
   energyPerSecond = 1;
   coinsPerSecond = 20;
-  levels = [
-    1000, 2000, 4000, 8000, 10000, 15000, 20000, 25000, 40000, 100000, 1000000,
-  ];
+  levels = [0];
   startedAt?: Date;
-  startDelay = 3000;
+  startDelay = 0;
 
   get currentLevel() {
     for (let i = 0; i < this.levels.length; i++) {
@@ -63,6 +61,7 @@ class State {
     this.profile = profile;
     this.particlesCount = profile.coins || 0;
     this.energy = profile.energy || 0;
+    this.levels = profile.level_caps;
   }
 
   tap(): boolean {

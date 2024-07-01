@@ -216,6 +216,17 @@ export const $UserPublic = {
       type: "number",
       isRequired: true,
     },
+    referral_link: {
+      type: "string",
+      isRequired: true,
+    },
+    level_caps: {
+      type: "array",
+      contains: {
+        type: "number",
+      },
+      isRequired: true,
+    },
   },
 } as const;
 

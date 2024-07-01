@@ -139,4 +139,6 @@ async def profile(current_user: CurrentUser, session: SessionDep, redis: RedisDe
     last_energy = float(await redis.hget(f"user:{current_user.id}", "energy"))
     u["energy"] = last_energy
     u["last_energy_change"] = last_energy_change
+    u["level_caps"] = GameSession.LEVEL_CAPS
+    u["referral_link"] = f"https://t.me/{settings.APP_TELEGRAM_BOT_NAME}?start={current_user.telegram_id}"
     return u
